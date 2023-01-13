@@ -1,9 +1,20 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 function App() {
-  fetch('/api/test').then(a => console.log(a));
+
+  const {sendMessage, getWebSocket} = useWebSocket('ws://localhost:13102', {
+    onOpen: (event) => {
+      console.log('opened', event);
+    },
+    onMessage: (event) => {
+      console.log(JSON.parse(event.data));
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+
   return (
     <div className="App">
       <header className="App-header">

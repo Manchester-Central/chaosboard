@@ -1,7 +1,6 @@
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import path from 'path';
-import helmet from 'helmet';
 import express, { Request, Response, NextFunction, Router } from 'express';
 
 import 'express-async-errors';
@@ -11,6 +10,9 @@ import EnvVars from '@src/declarations/major/EnvVars';
 import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import { NodeEnvs } from '@src/declarations/enums';
 import { RouteError } from '@src/declarations/classes';
+
+import { Client } from 'wpilib-nt-client';
+import WebSocket, { WebSocketServer } from 'ws';
 
 
 // **** Init express **** //
@@ -29,11 +31,30 @@ if (EnvVars.nodeEnv === NodeEnvs.Dev) {
   app.use(morgan('dev'));
 }
 
-// Security
-if (EnvVars.nodeEnv === NodeEnvs.Production) {
-  app.use(helmet());
-}
 
+const networkTables = new Client();
+
+networkTables.setReconnectDelay(1000);
+
+networkTables.start((isConnected, error) => {
+  console.log(isConnected, error);
+}, 'localhost');
+
+const wss = new WebSocketServer({port: 13102});
+wss.on('connection', (ws) => {
+  console.log('connection', ws.url);
+  ws.on('message', (data) => {
+    console.log('received: %s', data);
+  });
+
+  ws.send('something');
+
+  networkTables.addListener((key, value, valueType, type, id, flags) => {
+    ws.send(JSON.stringify({networkTableUpdate: {
+      key, value, valueType, type, id, flags
+    }}));
+  }, true);
+});
 
 // **** Add API routes **** //
 
