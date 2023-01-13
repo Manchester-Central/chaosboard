@@ -31,10 +31,23 @@ if (EnvVars.nodeEnv === NodeEnvs.Dev) {
   app.use(morgan('dev'));
 }
 
-
 const networkTables = new Client();
+let initialConnectInterval: NodeJS.Timer | null = setInterval(() => {
+ ntConnect();
+}, 1000);
 
 networkTables.setReconnectDelay(1000);
+const ntConnect = () => {
+  networkTables.start((isConnected, error) => {
+    console.log(isConnected, error);
+    if(isConnected && initialConnectInterval) {
+      clearInterval(initialConnectInterval);
+      initialConnectInterval = null;
+    }
+  }, 'localhost');
+}
+ntConnect();
+
 
 networkTables.start((isConnected, error) => {
   console.log(isConnected, error);
@@ -49,11 +62,14 @@ wss.on('connection', (ws) => {
 
   ws.send('something');
 
-  networkTables.addListener((key, value, valueType, type, id, flags) => {
+  const listener = networkTables.addListener((key, value, valueType, type, id, flags) => {
     ws.send(JSON.stringify({networkTableUpdate: {
       key, value, valueType, type, id, flags
     }}));
   }, true);
+  ws.on('close', () => {
+    networkTables.removeListener(listener);
+  })
 });
 
 // **** Add API routes **** //
