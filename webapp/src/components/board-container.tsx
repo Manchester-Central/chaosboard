@@ -16,8 +16,8 @@ const style: CSSProperties = {
     position: 'absolute',
     border: '1px dashed gray',
     backgroundColor: 'white',
-    padding: '0.5rem 1rem',
     cursor: 'move',
+    maxWidth: '300px',
 }
 
 export interface BoxProps {
@@ -51,12 +51,17 @@ export const Box: FC<BoxProps> = ({
     }
     return (
         <div
-            className="box"
+            className="card text-center"
             ref={drag}
             style={{ ...style, left, top }}
             data-testid="box"
         >
-            {children}
+            <div className="card-body">
+                {children}
+            </div>
+            <div className="card-footer text-muted fs-6">
+                <small>{id}</small>
+            </div>
         </div>
     )
 }
@@ -167,7 +172,6 @@ function BoardContainer({ manager, hideSourceOnDrag }: BoardContainerProps) {
                         top={top}
                         hideSourceOnDrag={hideSourceOnDrag}
                     >
-                        <span>{title}</span>
                         <SimpleDisplay entry={manager.getEntry(key)}></SimpleDisplay>
                     </Box>
                 )
