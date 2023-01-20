@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
+import BoardContainerWrapper from './components/board-container';
 import NtContainer from './components/nt-container';
 import NTModal from './components/nt-modal';
 
@@ -15,6 +16,7 @@ function App() {
           <NTModal></NTModal>
         </div>
       </nav>
+      <BoardContainerWrapper></BoardContainerWrapper>
     </NtContainer>
   );
 }

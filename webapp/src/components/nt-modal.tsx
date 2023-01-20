@@ -1,31 +1,31 @@
+import { faAdd } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import 'bootstrap/dist/css/bootstrap.css';
-import React, { useEffect, useState } from 'react';
-import NTManager, { NetworkTableTree, NTEntry } from '../data/nt-manager';
-import '../App.css';
-import { NtContextObject } from './nt-container';
+import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAdd } from '@fortawesome/free-solid-svg-icons'
+import { Subject } from 'rxjs';
+import '../App.css';
+import NTManager, { NetworkTableTree, NTEntry } from '../data/nt-manager';
+import useNtEntry from '../hooks/useNtEntry';
+import { NtContextObject } from './nt-container';
+
+const onWidgetAddedSubject = new Subject<NTEntry>();
+const onWidgetAdded = onWidgetAddedSubject.asObservable();
 
 type TableRowProps = {
     node: NetworkTableTree,
     entry?: NTEntry,
     level: number
 };
-function TableRow({node, entry, level}: TableRowProps) {
-    const [value, setValue] = useState(entry?.latestValue?.value);
+function TableRow({ node, entry, level }: TableRowProps) {
 
-    useEffect(() => {
-        const sub = entry?.onUpdated.subscribe(update => {
-            setValue(update?.value);
-        });
-        return () => sub?.unsubscribe();
-    })
+    let value = useNtEntry(entry);
 
     return (
         <tr key={entry?.key}>
-            <td style={{ paddingLeft: level * 20 + 'px' }}>{node?.key}</td>
+            <td style={{ paddingLeft: level * 20 + 'px', width: '20%' }}>{node?.key}</td>
             <td>{value?.toString()}</td>
+            <td style={{ width: '50px' }}>{entry ? <button className='btn btn-dark btn-chaos btn-sm' onClick={() => onWidgetAddedSubject.next(entry)}><FontAwesomeIcon icon={faAdd} /></button> : <></>}</td>
         </tr>
     );
 }
@@ -33,7 +33,7 @@ function TableRow({node, entry, level}: TableRowProps) {
 type TableBodyProps = {
     manager: NTManager,
 };
-function TableBody({manager}: TableBodyProps) {
+function TableBody({ manager }: TableBodyProps) {
     const [data, setData] = useState(manager.tree.children);
     const [latestUpdate, setLatestUpdate] = useState<NTEntry>();
 
@@ -71,12 +71,17 @@ function NTModal() {
     const [isModalOpen, setModalOpen] = useState(false);
 
     Modal.setAppElement('#root')
-    
+
+    useEffect(() => {
+        const sub = onWidgetAdded.subscribe(() => setModalOpen(false));
+        return () => sub.unsubscribe();
+    })
+
     return (
         <div id='ntModal'>
-            <button onClick={() => setModalOpen(true)} className='btn btn-chaos'><FontAwesomeIcon icon={faAdd} /> Widget</button>
+            <button onClick={() => setModalOpen(true)} className='btn btn-dark btn-chaos'><FontAwesomeIcon icon={faAdd} /> Widget</button>
             <Modal isOpen={isModalOpen}>
-                <button onClick={() => setModalOpen(false)}>Close</button>
+                <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos'>Close</button>
                 <NtContextObject.Consumer>
                     {context => <TableBody manager={context}></TableBody>}
                 </NtContextObject.Consumer>
@@ -85,4 +90,4 @@ function NTModal() {
     );
 }
 
-export default NTModal;
+export { NTModal as default, onWidgetAdded };

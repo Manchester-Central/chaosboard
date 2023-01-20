@@ -17,3 +17,8 @@
   color: white;
   border-color: white;
 }
+
+.btn.btn-chaos:hover {
+  background-color: #cbe0d2;
+  color: white;
+}
