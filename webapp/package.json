@@ -13,6 +13,7 @@
     "react-modal": "^3.16.1",
     "react-rnd": "^10.4.1",
     "react-scripts": "5.0.1",
+    "react-select": "^5.7.0",
     "react-textfit": "^1.1.1",
     "react-use-websocket": "^4.2.0",
     "rxjs": "^7.8.0",

@@ -28,7 +28,7 @@ export class NTEntry {
   }
 
   updateValue(update: NTUpdate) {
-    this.latestValue = update.value;
+    this.latestValue = update;
     //this.values.push(update); // TODO: Implement size limit so memory doesn't keep growing
     this.onUpdatedSubject.next(update);
   }
