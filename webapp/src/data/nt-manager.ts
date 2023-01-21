@@ -16,12 +16,16 @@ export interface NTUpdateMessage {
 export class NTEntry {
   private onUpdatedSubject = new BehaviorSubject<NTUpdate | undefined>(undefined);
   onUpdated = this.onUpdatedSubject.asObservable();
+  title: string;
 
   constructor(
     public readonly key: string,
     public latestValue?: NTUpdate,
     public readonly values: NTUpdate[] = []
-  ) { }
+  ) {
+    const splitKeys = key.split('/');
+    this.title = splitKeys[splitKeys.length - 1];
+  }
 
   updateValue(update: NTUpdate) {
     this.latestValue = update.value;

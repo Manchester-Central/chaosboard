@@ -13,15 +13,15 @@ type SimpleDisplayProps = {
     entry: NTEntry | undefined,
 };
 function SimpleDisplay({ entry }: SimpleDisplayProps) {
-    
+
     let value = useNtEntry(entry);
 
     return (
-        <div style={{width: '100%'}}>
-            
-      <Textfit mode="single">
-      {value?.toString()}
-      </Textfit></div>
+        <div style={{ width: '100%' }}>
+            <Textfit mode="single" max={60}>
+                {value?.toString().replaceAll(',', ', ')}
+            </Textfit>
+        </div>
     );
 }
 
@@ -53,10 +53,10 @@ function BoardContainer({ manager }: BoardContainerProps) {
             boxes[entry.key] = {
                 left: 50,
                 top: 50,
-                title: entry.key,
+                title: entry.title,
                 zIndex: getNextZIndex(),
-                height: '100px',
-                width: '100px',
+                height: '150px',
+                width: '200px',
             }
             setBoxes(
                 { ...boxes }
@@ -110,11 +110,14 @@ function BoardContainer({ manager }: BoardContainerProps) {
                         style={{ zIndex }}
                     >
                         <div className='card' style={{ height: '100%' }}>
-                            <div className='handle card-header' style={{ cursor: 'move' }}>
-                                {title}
+                            <div className='handle card-header' style={{ cursor: 'move', width: '100%' }}>
+                                <Textfit mode="single" max={20}>
+                                    {title} <small style={{fontSize: '0.5em'}}>{key}</small>
+                                </Textfit>
                             </div>
-                            <div className='card-body d-flex justify-content-center align-items-center'><SimpleDisplay entry={manager.getEntry(key)}></SimpleDisplay></div>
-
+                            <div className='card-body d-flex justify-content-center align-items-center'>
+                                <SimpleDisplay entry={manager.getEntry(key)}></SimpleDisplay>
+                            </div>
                         </div>
                     </Rnd>
                 )
