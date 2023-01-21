@@ -5,25 +5,30 @@ import { NtContextObject } from './nt-container';
 import { onWidgetAdded } from '../components/nt-modal';
 import { useCallback, useEffect, useState } from 'react';
 import useNtEntry from '../hooks/useNtEntry';
-import { DndProvider, useDrag, useDrop } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import type { XYCoord } from 'react-dnd'
-import update from 'immutability-helper'
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import type { XYCoord } from 'react-dnd';
+import update from 'immutability-helper';
 
 import type { CSSProperties, FC, ReactNode } from 'react'
 
-const style: CSSProperties = {
+const boxStyles: CSSProperties = {
     position: 'absolute',
-    border: '1px dashed gray',
+    //border: '1px dashed gray',
     backgroundColor: 'white',
+    //cursor: 'move',
+    //maxWidth: '300px',
+}
+
+const headerStyles: CSSProperties = {
     cursor: 'move',
-    maxWidth: '300px',
 }
 
 export interface BoxProps {
     id: any
     left: number
     top: number
+    zIndex: number
     hideSourceOnDrag?: boolean
     children?: ReactNode
 }
@@ -32,6 +37,7 @@ export const Box: FC<BoxProps> = ({
     id,
     left,
     top,
+    zIndex,
     hideSourceOnDrag,
     children,
 }) => {
@@ -52,15 +58,14 @@ export const Box: FC<BoxProps> = ({
     return (
         <div
             className="card text-center"
-            ref={drag}
-            style={{ ...style, left, top }}
+            style={{ ...boxStyles, left, top, zIndex }}
             data-testid="box"
         >
+        <div className="card-header text-muted fs-6" ref={drag} style={headerStyles}>
+            <small>{id}</small>
+        </div>
             <div className="card-body">
                 {children}
-            </div>
-            <div className="card-footer text-muted fs-6">
-                <small>{id}</small>
             </div>
         </div>
     )
@@ -77,11 +82,7 @@ function SimpleDisplay({ entry }: SimpleDisplayProps) {
     );
 }
 
-const ItemTypes = {
-    NT: 'nt',
-}
-
-const styles: CSSProperties = {
+const bowWrapperStyles: CSSProperties = {
     width: '100vw',
     height: 'calc(100vh - 56px)',
     border: '1px solid black',
@@ -102,15 +103,20 @@ function BoardContainer({ manager, hideSourceOnDrag }: BoardContainerProps) {
             top: number
             left: number
             title: string
+            zIndex: number
         }
     }>(JSON.parse(localStorage.getItem('nt-boxes') ?? '{}'))
+
+    const getNextZIndex = () => Math.max(...Object.values(boxes).map(box => box.zIndex).filter(z => Number.isSafeInteger(z)), 0) + 1;
 
     useEffect(() => {
         onWidgetAdded.subscribe(entry => {
             boxes[entry.key] = {
                 left: 50,
                 top: 50,
-                title: entry.key
+                title: entry.key,
+                zIndex: getNextZIndex()
+                // TODO: Add high z index so new items are on top
             }
             setBoxes(
                 { ...boxes }
@@ -124,10 +130,12 @@ function BoardContainer({ manager, hideSourceOnDrag }: BoardContainerProps) {
 
     const moveBox = useCallback(
         (id: string, left: number, top: number) => {
+            const newZIndex = getNextZIndex();
+            console.log(newZIndex, Object.values(boxes).map(box => box.zIndex));
             setBoxes(
                 update(boxes, {
                     [id]: {
-                        $merge: { left, top },
+                        $merge: { left, top, zIndex: newZIndex },
                     },
                 }),
             )
@@ -157,12 +165,13 @@ function BoardContainer({ manager, hideSourceOnDrag }: BoardContainerProps) {
     console.log(boxes);
 
     return (
-        <div ref={drop} style={styles}>
+        <div ref={drop} style={bowWrapperStyles}>
             {Object.keys(boxes).map((key) => {
-                const { left, top, title } = boxes[key] as {
+                const { left, top, title, zIndex } = boxes[key] as {
                     top: number
                     left: number
                     title: string
+                    zIndex: number
                 }
                 return (
                     <Box
@@ -170,9 +179,12 @@ function BoardContainer({ manager, hideSourceOnDrag }: BoardContainerProps) {
                         id={key}
                         left={left}
                         top={top}
+                        zIndex={zIndex}
                         hideSourceOnDrag={hideSourceOnDrag}
                     >
-                        <SimpleDisplay entry={manager.getEntry(key)}></SimpleDisplay>
+                        <div>
+                            <SimpleDisplay entry={manager.getEntry(key)}></SimpleDisplay>
+                        </div>
                     </Box>
                 )
             })}

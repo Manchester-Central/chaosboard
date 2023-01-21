@@ -67,6 +67,12 @@ function TableBody({ manager }: TableBodyProps) {
     );
 }
 
+const styles: Modal.Styles = {
+    overlay: {
+        zIndex: 99999
+    }
+}
+
 function NTModal() {
     const [isModalOpen, setModalOpen] = useState(false);
 
@@ -80,7 +86,7 @@ function NTModal() {
     return (
         <div id='ntModal'>
             <button onClick={() => setModalOpen(true)} className='btn btn-dark btn-chaos'><FontAwesomeIcon icon={faAdd} /> Widget</button>
-            <Modal isOpen={isModalOpen}>
+            <Modal isOpen={isModalOpen} style={styles}>
                 <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos'>Close</button>
                 <NtContextObject.Consumer>
                     {context => <TableBody manager={context}></TableBody>}
@@ -91,3 +97,4 @@ function NTModal() {
 }
 
 export { NTModal as default, onWidgetAdded };
+
