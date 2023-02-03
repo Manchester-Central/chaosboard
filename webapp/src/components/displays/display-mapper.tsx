@@ -1,10 +1,12 @@
 import { NTEntry } from '../../data/nt-manager';
 import { BoolDisplay } from './bool-display';
+import { FieldDisplay } from './field-display';
 import { SimpleDisplay } from './simple-text-display';
 
 export enum DisplayType {
     Simple = 'Simple',
     Bool = 'Boolean',
+    Field = 'Field',
 }
 
 type DisplayMapperProps = {
@@ -17,6 +19,8 @@ export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps
         switch(selectedDisplayType) {
             case DisplayType.Bool:
                 return BoolDisplay({entry});
+            case DisplayType.Field:
+                return FieldDisplay({entry});
             default:
                 return SimpleDisplay({entry});
         }
@@ -33,6 +37,8 @@ export function getDefaultType(entry: NTEntry) {
     switch(entry?.latestValue?.valueType) {
         case 'Boolean':
             return DisplayType.Bool;
+        case 'NumberArray':
+            return DisplayType.Field;
         default:
             return DisplayType.Simple;
     }
