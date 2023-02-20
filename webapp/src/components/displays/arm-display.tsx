@@ -13,7 +13,6 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const draw = (context: CanvasRenderingContext2D, frameCount: number) => {
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-        console.log(context.canvas.height, context.canvas.width);
         
         context.fillStyle = 'hotpink';
         context.beginPath();
@@ -43,7 +42,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         context.moveTo(extenderX, extenderY)
         let wristLength = 30
         let angleWrist = value?.[2] ?? 0;
-        angleWrist += shoulderAngle + 25
+        angleWrist += shoulderAngle
         let angleWristRadians = angleWrist * Math.PI/180;
         let wristX = extenderX + wristLength * Math.cos(angleWristRadians)
         let wristY = extenderY - wristLength * Math.sin(angleWristRadians)
@@ -76,7 +75,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
             <canvas width="400" height="400" style={{ width: '100%', height: '100%',border:'1px solid black' }} ref={canvasRef}></canvas>
-            
+            {value?.join(", ")}
         </div>
     );
 

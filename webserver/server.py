@@ -44,7 +44,6 @@ async def register(websocket):
     CONNECTIONS.add(websocket)
     try:
         topics = inst.getTopics()
-        print(topics)
         for topic in topics:
             value = inst.getEntry(topic.getName()).getValue().value();
             await websocket.send(createNtMessage(topic.getName(), value, topic.getTypeString()))
@@ -52,16 +51,6 @@ async def register(websocket):
     finally:
         CONNECTIONS.remove(websocket)
 
-async def echo(websocket):
-    async for message in websocket:
-
-        def entry_updated(event):
-            print(event)
-            response = createNtMessage(event.data.topic.getName(), event.data.value.value(), event.data.topic.getTypeString())
-            asyncio.run(websocket.send(response))
-            return message
-        listener = ntcore.NetworkTableListener.createListener(inst, [""], ntcore.EventFlags.kValueAll, entry_updated)
-        print(listener)
 
 
 # Create a poller
