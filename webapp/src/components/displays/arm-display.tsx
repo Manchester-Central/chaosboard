@@ -29,12 +29,25 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         context.lineWidth = 25
         context.beginPath();
         context.moveTo(200,200)
-        let angle = value?.[0] ?? 0;
-        let angleRadians = angle * Math.PI/180;
-        let armLength = value?.[1]*100 ?? 100;
-        let x = armLength * Math.cos(angleRadians);
-        let y = armLength * Math.sin(angleRadians);
-        context.lineTo(200 + x, 200 - y) 
+        let shoulderAngle = value?.[0] ?? 0;
+        let shoulderAngleRadians = shoulderAngle * Math.PI/180;
+        let extenderLength = value?.[1]*100 ?? 100;
+        let extenderX = 200 + extenderLength * Math.cos(shoulderAngleRadians);
+        let extenderY = 200 - extenderLength * Math.sin(shoulderAngleRadians);
+        context.lineTo(extenderX, extenderY) 
+        context.stroke();
+
+        context.strokeStyle = 'blue';
+        context.lineWidth = 25
+        context.beginPath();
+        context.moveTo(extenderX, extenderY)
+        let wristLength = 30
+        let angleWrist = value?.[2] ?? 0;
+        angleWrist += shoulderAngle + 25
+        let angleWristRadians = angleWrist * Math.PI/180;
+        let wristX = extenderX + wristLength * Math.cos(angleWristRadians)
+        let wristY = extenderY - wristLength * Math.sin(angleWristRadians)
+        context.lineTo(wristX , wristY) 
         context.stroke();
       };
 
