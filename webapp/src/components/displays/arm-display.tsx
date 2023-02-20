@@ -20,12 +20,17 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
        // context.arc(170, 50, 30 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
        context.rect(185,200,30,200)
         context.fill();
-
+      
         context.strokeStyle = 'green';
         context.lineWidth = 25
         context.beginPath();
         context.moveTo(200,200)
-        context.lineTo(300,200) 
+        let angle = value?.[0] ?? 0;
+        let angleRadians = angle * Math.PI/180;
+        let armLength = value?.[1]*100 ?? 100;
+        let x = armLength * Math.cos(angleRadians);
+        let y = armLength * Math.sin(angleRadians);
+        context.lineTo(200 + x, 200 - y) 
         context.stroke();
       };
       useEffect(() => {
@@ -48,7 +53,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         return () => {
           window.cancelAnimationFrame(animationFrameId);
         };
-      }, []);
+      }, [value]);
 
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
