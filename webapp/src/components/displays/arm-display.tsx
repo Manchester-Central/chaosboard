@@ -17,10 +17,14 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         
         context.fillStyle = 'hotpink';
         context.beginPath();
-       // context.arc(170, 50, 30 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
-       context.rect(185,200,30,200)
+       context.rect(185,200,30,200);
         context.fill();
-      
+
+        context.fillStyle = 'black';
+        context.beginPath();
+        context.rect(157, 340, 86.3, 60);
+        context.fill();
+
         context.strokeStyle = 'green';
         context.lineWidth = 25
         context.beginPath();
@@ -33,6 +37,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         context.lineTo(200 + x, 200 - y) 
         context.stroke();
       };
+
       useEffect(() => {
         const canvas = canvasRef.current
         if (!canvas) {
