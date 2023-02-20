@@ -4,9 +4,6 @@ export interface NTUpdate {
   key: string;
   value: any;
   valueType: string;
-  type: string;
-  id: number;
-  flags: number;
 }
 
 export interface NTUpdateMessage {
