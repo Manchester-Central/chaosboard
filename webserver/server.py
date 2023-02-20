@@ -18,7 +18,7 @@ import asyncio
 import websockets
 import json
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 nst = ntcore.NetworkTableInstance.getDefault()
 inst = ntcore.NetworkTableInstance.getDefault()
@@ -27,6 +27,42 @@ inst.startClient4("chaosboard")
 
 
 inst.setServer("localhost")
+
+def createNtMessage(topic, value, valueType):
+    return json.dumps({"networkTableUpdate": {
+                "key": topic,
+                "value": value,
+                "valueType": valueType
+                # type,
+                # id,
+                # flags
+            }})
+
+CONNECTIONS = set()
+
+async def register(websocket):
+    CONNECTIONS.add(websocket)
+    try:
+        topics = inst.getTopics()
+        print(topics)
+        for topic in topics:
+            value = inst.getEntry(topic.getName()).getValue().value();
+            await websocket.send(createNtMessage(topic.getName(), value, topic.getTypeString()))
+        await websocket.wait_closed()
+    finally:
+        CONNECTIONS.remove(websocket)
+
+async def echo(websocket):
+    async for message in websocket:
+
+        def entry_updated(event):
+            print(event)
+            response = createNtMessage(event.data.topic.getName(), event.data.value.value(), event.data.topic.getTypeString())
+            asyncio.run(websocket.send(response))
+            return message
+        listener = ntcore.NetworkTableListener.createListener(inst, [""], ntcore.EventFlags.kValueAll, entry_updated)
+        print(listener)
+
 
 # Create a poller
 poller = ntcore.NetworkTableListenerPoller(inst)
@@ -38,77 +74,24 @@ poller.addConnectionListener(True)
 msub = ntcore.MultiSubscriber(inst, [""])
 poller.addListener(msub, ntcore.EventFlags.kValueRemote)
 
-# while True:
-#     # periodically read from the queue
-#     for event in poller.readQueue():
-#         print(event)
-
-#     time.sleep(1)
-
-async def echo(websocket):
-    async for message in websocket:
-        print("hello2")
-        for event in poller.readQueue():
-            print(event)
-            print(event.data)
-            print(event.data.topic)
-            print(event.data.value)
-            response = {"networkTableUpdate": {
-                "key": event.data.topic.getName(),
-                "value": event.data.value.value(),
-                "valueType": event.data.value.type().name,
-                "test": event.data.topic.getTypeString()
-                # type,
-                # id,
-                # flags
-            }}
-            await websocket.send(json.dumps(response))
-
 async def main():
-    async with websockets.serve(echo, "localhost", 13102):
-        print("hello")
-        await asyncio.Future()  # run forever
+    async with websockets.serve(register, "localhost", 13102):
+        while True:
+            # periodically read from the queue
+            for event in poller.readQueue():
+                try: 
+                    response = {"networkTableUpdate": {
+                        "key": event.data.topic.getName(),
+                        "value": event.data.value.value(),
+                        "valueType": event.data.topic.getTypeString()
+                        # type,
+                        # id,
+                        # flags
+                    }}
+                    websockets.broadcast(CONNECTIONS, json.dumps(response))
+                except:
+                    print("count not read event")
+                    print(event)
+            await asyncio.sleep(0.05)
 
 asyncio.run(main())
-
-# if __name__ == "__main__":
-#     logging.basicConfig(level=logging.DEBUG)
-
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument(
-#         "-p",
-#         "--protocol",
-#         type=int,
-#         choices=[3, 4],
-#         help="NT Protocol to use",
-#         default=4,
-#     )
-#     parser.add_argument("ip", type=str, help="IP address to connect to")
-#     args = parser.parse_args()
-
-    # inst = ntcore.NetworkTableInstance.getDefault()
-
-    # identity = basename(__file__)
-    # if args.protocol == 3:
-    #     inst.startClient3(identity)
-    # else:
-    #     inst.startClient4(identity)
-
-    # inst.setServer(args.ip)
-
-    # # Create a poller
-    # poller = ntcore.NetworkTableListenerPoller(inst)
-
-    # # Listen for all connection events
-    # poller.addConnectionListener(True)
-
-    # # Listen to all changes
-    # msub = ntcore.MultiSubscriber(inst, [""])
-    # poller.addListener(msub, ntcore.EventFlags.kValueRemote)
-
-    # while True:
-    #     # periodically read from the queue
-    #     for event in poller.readQueue():
-    #         print(event)
-
-    #     time.sleep(1)

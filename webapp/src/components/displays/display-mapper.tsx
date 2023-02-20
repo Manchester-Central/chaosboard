@@ -35,9 +35,9 @@ export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps
 
 export function getDefaultType(entry: NTEntry) {
     switch(entry?.latestValue?.valueType) {
-        case 'Boolean':
+        case 'boolean':
             return DisplayType.Bool;
-        case 'NumberArray':
+        case 'double[]':
             return DisplayType.Field;
         default:
             return DisplayType.Simple;
