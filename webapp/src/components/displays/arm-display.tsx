@@ -24,7 +24,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         context.rect(157, 340, 86.3, 60);
         context.fill();
 
-        context.strokeStyle = 'green';
+        context.strokeStyle = 'blue';
         context.lineWidth = 25
         context.beginPath();
         context.moveTo(200,200)
@@ -36,7 +36,17 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
         context.lineTo(extenderX, extenderY) 
         context.stroke();
 
-        context.strokeStyle = 'blue';
+        let gripperPower = value?.[3] ?? 0;
+        let gripperColor = 'gray'
+        if (gripperPower > 0){
+          gripperColor = '#134122'
+        }
+        if (gripperPower < 0){
+          gripperColor = '#F26722'
+        }
+          
+
+        context.strokeStyle = gripperColor;
         context.lineWidth = 25
         context.beginPath();
         context.moveTo(extenderX, extenderY)
