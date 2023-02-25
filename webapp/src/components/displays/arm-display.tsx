@@ -4,7 +4,7 @@ import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
 
 const pixelsPerMeter = 400;
-const metersForDisplay = 3;
+const metersForDisplay = 5;
 const pixelsForDisplay = pixelsPerMeter * metersForDisplay;
 const metersToPixels = (meters: number) =>  Math.floor(meters * pixelsPerMeter);
 const getXCoordinate = (meters: number, widthPixels: number = 0) =>  metersToPixels(meters) + (pixelsForDisplay / 2) - (widthPixels / 2); // Center the x coordinate
@@ -96,10 +96,12 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const wheelLeft = createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'blue');
     const wheelRight = createShape(wheelDiameterMeters, wheelDiameterMeters, 0.27, 0.0, 'blue');
     const bumpers = createShape(0.863, 0.129, 0, 0.047, 'forestgreen');
-    const middleCubeNode = createShape(0.60, 0.46, -0.75, 0, 'indigo');
-    const middleCubeNodeShelf = createShape(0.60, 0.073, -0.75, 0.38,'pink');
-    const topCubeNode = createShape(0.60, 0.90, -1.25, 0, 'darkviolet')
-    const topCubeNodeShelf = createShape(0.60, 0.073, -1.25, 0.82,'pink');
+    const middleCubeNode = createShape(0.60, 0.46, -1.61, 0, 'indigo');
+    const middleCubeNodeShelf = createShape(0.60, 0.073, -1.61, 0.38,'pink');
+    const topCubeNode = createShape(0.60, 0.90, -2.21, 0, 'darkviolet')
+    const topCubeNodeShelf = createShape(0.60, 0.073, -2.21, 0.82,'pink');
+    const frontPole = createShape(0.078, 0.87, 1.61 , 0, 'salmon');
+    const backPole = createShape(0.078, 1.17, 2.21 , 0, 'darksalmon');
 
     let shoulderAngleDegrees = value?.[0] ?? 0;
     let extenderLengthMeters = value?.[1] ?? 1;
@@ -130,6 +132,8 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     drawRectangle(context, middleCubeNodeShelf);
     drawRectangle(context, topCubeNode);
     drawRectangle(context, topCubeNodeShelf);
+    drawRectangle(context, frontPole);
+    drawRectangle(context, backPole);
   };
 
   useEffect(() => {
