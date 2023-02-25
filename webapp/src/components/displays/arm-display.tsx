@@ -1,3 +1,4 @@
+import { create } from 'domain';
 import { useEffect, useRef } from 'react';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
@@ -95,6 +96,10 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const wheelLeft = createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'blue');
     const wheelRight = createShape(wheelDiameterMeters, wheelDiameterMeters, 0.27, 0.0, 'blue');
     const bumpers = createShape(0.863, 0.129, 0, 0.047, 'forestgreen');
+    const middleCubeNode = createShape(0.60, 0.46, -0.75, 0, 'indigo');
+    const middleCubeNodeShelf = createShape(0.60, 0.073, -0.75, 0.38,'pink');
+    const topCubeNode = createShape(0.60, 0.90, -1.25, 0, 'darkviolet')
+    const topCubeNodeShelf = createShape(0.60, 0.073, -1.25, 0.82,'pink');
 
     let shoulderAngleDegrees = value?.[0] ?? 0;
     let extenderLengthMeters = value?.[1] ?? 1;
@@ -121,6 +126,10 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     drawRoundRectangle(context, wheelLeft, wheelLeft.heightPixels / 2);
     drawRoundRectangle(context, wheelRight, wheelRight.heightPixels / 2);
     drawRoundRectangle(context, bumpers, bumpers.heightPixels / 3);
+    drawRectangle(context, middleCubeNode);
+    drawRectangle(context, middleCubeNodeShelf);
+    drawRectangle(context, topCubeNode);
+    drawRectangle(context, topCubeNodeShelf);
   };
 
   useEffect(() => {
@@ -144,6 +153,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
       window.cancelAnimationFrame(animationFrameId);
     };
   }, [value]);
+
 
   return (
     <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
