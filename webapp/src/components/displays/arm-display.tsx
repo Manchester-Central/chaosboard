@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
 
-const pixelsPerMeter = 400;
-const metersForDisplay = 5;
+const pixelsPerMeter = 500;
+const metersForDisplay = 4;
 const pixelsForDisplay = pixelsPerMeter * metersForDisplay;
 const metersToPixels = (meters: number) =>  Math.floor(meters * pixelsPerMeter);
 const getXCoordinate = (meters: number, widthPixels: number = 0) =>  metersToPixels(meters) + (pixelsForDisplay / 2) - (widthPixels / 2); // Center the x coordinate
@@ -96,12 +96,14 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const wheelLeft = createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'blue');
     const wheelRight = createShape(wheelDiameterMeters, wheelDiameterMeters, 0.27, 0.0, 'blue');
     const bumpers = createShape(0.863, 0.129, 0, 0.047, 'forestgreen');
-    const middleCubeNode = createShape(0.60, 0.46, -1.61, 0, 'indigo');
-    const middleCubeNodeShelf = createShape(0.60, 0.073, -1.61, 0.38,'pink');
-    const topCubeNode = createShape(0.60, 0.90, -2.21, 0, 'darkviolet')
-    const topCubeNodeShelf = createShape(0.60, 0.073, -2.21, 0.82,'pink');
-    const frontPole = createShape(0.078, 0.87, 1.61 , 0, 'salmon');
-    const backPole = createShape(0.078, 1.17, 2.21 , 0, 'darksalmon');
+    const middleCubeNode = createShape(0.885952, 0.591, -1.432, 0, 'indigo');
+    const middleCubeNodeShelf = createShape(0.43, 0.073, -1.21, 0.511,'pink');
+    const topCubeNode = createShape(0.572, 0.90, -1.72, 0, 'darkviolet')
+    const topCubeNodeShelf = createShape(0.58, 0.073, -1.72, 0.82,'pink');
+    const frontPole = createShape(0.078, 0.87, 1.16, 0, 'gold');
+    const backPole = createShape(0.078, 1.17, 1.626, 0, 'gold');
+    const poleBumper = createShape(1.377, 0.127, 1.32, 0, 'blue'); //.68
+    const cubeBumper = createShape(1.377, 0.127, -1.32, 0, 'red'); 
 
     let shoulderAngleDegrees = value?.[0] ?? 0;
     let extenderLengthMeters = value?.[1] ?? 1;
@@ -134,6 +136,8 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     drawRectangle(context, topCubeNodeShelf);
     drawRectangle(context, frontPole);
     drawRectangle(context, backPole);
+    drawRectangle(context, poleBumper);
+    drawRectangle(context, cubeBumper);
   };
 
   useEffect(() => {
