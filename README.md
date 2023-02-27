@@ -4,20 +4,16 @@ This is a simple tool to make web-based widgets for debugging and monitoring our
 
 # Set up
 Install [Node.js](https://nodejs.org/en/download/) and [Python](https://www.python.org/downloads/)
+- When installing python, make sure to hit the checkbox for adding python to the path/environment variables
 
-In the `webapp` folder, run the following command:
+In the `chaosboard` root folder, run the following command:
 ```
-npm install
-```
-
-In the `webserver` folder, run the following command:
-```
-pip install pyntcore asyncio websockets
+npm run setup
 ```
 
 # Running
-In the root folder, you can run the server and webapp by doing
+In the `chaosboard` root folder, you can run the server and webapp by doing
 ```
 npm start
 ```
-The dashboard should open in your browser.
+The dashboard should open in your browser at [http://localhost:13100/](http://localhost:13100/).
