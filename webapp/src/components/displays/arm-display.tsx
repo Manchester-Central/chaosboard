@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
 
-const pixelsPerMeter = 400;
-const metersForDisplay = 3;
+const pixelsPerMeter = 500;
+const metersForDisplay = 4;
 const pixelsForDisplay = pixelsPerMeter * metersForDisplay;
 const metersToPixels = (meters: number) =>  Math.floor(meters * pixelsPerMeter);
 const getXCoordinate = (meters: number, widthPixels: number = 0) =>  metersToPixels(meters) + (pixelsForDisplay / 2) - (widthPixels / 2); // Center the x coordinate
@@ -96,13 +96,34 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const wheelRight = createShape(wheelDiameterMeters, wheelDiameterMeters, 0.27, 0.0, 'blue');
     const bumpers = createShape(0.863, 0.129, 0, 0.047, 'forestgreen');
 
+
+    const scoringAreaOffSetXMeters = (bumpers.widthMeters / 2) + 0.0762;
+    const scoringZoneWidthMeters = 1.377;
+    const scoringZoneXOffsetMeters = (scoringZoneWidthMeters / 2) + scoringAreaOffSetXMeters;
+    const lowLevelXOffsetMeters = (0.349 / 2) + scoringAreaOffSetXMeters;
+    const midLevelXOffsetMeters = 0.58 + scoringAreaOffSetXMeters;
+    const hightLevelXOffsetMeters = 1.01 + scoringAreaOffSetXMeters;
+    const shelfOutterWidthMeters = 0.455;
+    const shelfInnerWidthMeters = 0.43;
+    const shelfInnerDepthMeters = 0.075;
+    const shelfColor = '#ffffffbb';
+    const scoringZoneBottom = createShape(scoringZoneWidthMeters, 0.09, scoringZoneXOffsetMeters, 0, 'red'); 
+    const middleCubeNode = createShape(shelfOutterWidthMeters, 0.60, midLevelXOffsetMeters, 0, 'indigo');
+    const middleCubeNodeShelf = createShape(shelfInnerWidthMeters, shelfInnerDepthMeters, midLevelXOffsetMeters, middleCubeNode.heightMeters - shelfInnerDepthMeters, shelfColor);
+    const topCubeNode = createShape(shelfOutterWidthMeters, 0.90, hightLevelXOffsetMeters, 0, 'darkviolet')
+    const topCubeNodeShelf = createShape(shelfInnerWidthMeters, shelfInnerDepthMeters, hightLevelXOffsetMeters, topCubeNode.heightMeters - shelfInnerDepthMeters,shelfColor);
+    const openBottomShelf = createShape(0.349, 0.09, lowLevelXOffsetMeters, 0, shelfColor);
+    const midPole = createShape(0.042, 0.87, midLevelXOffsetMeters, 0, 'gold');
+    const highPole = createShape(0.042, 1.17, hightLevelXOffsetMeters, 0, 'gold');
+    const substationLevel = createShape(scoringZoneWidthMeters, 0.1, -scoringZoneXOffsetMeters, 0.85, 'lightblue');
+
     let shoulderAngleDegrees = value?.[0] ?? 0;
     let extenderLengthMeters = value?.[1] ?? 1;
     const extenderStart = Coordinate.fromMeters(0, shoulderPivot.yMeters + (shoulderPivot.heightMeters / 2));
     const extenderEndpoint = drawLine(context, extenderStart,  shoulderAngleDegrees, extenderLengthMeters, 'orange', 25);
 
     let gripperPower = value?.[3] ?? 0;
-    let gripperColor = 'gray';
+    let gripperColor = 'red';
     if (gripperPower > 0) {
       gripperColor = '#134122';
     }
@@ -121,6 +142,15 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     drawRoundRectangle(context, wheelLeft, wheelLeft.heightPixels / 2);
     drawRoundRectangle(context, wheelRight, wheelRight.heightPixels / 2);
     drawRoundRectangle(context, bumpers, bumpers.heightPixels / 3);
+    drawRectangle(context, middleCubeNode );
+    drawRectangle(context, middleCubeNodeShelf);
+    drawRectangle(context, topCubeNode);
+    drawRectangle(context, topCubeNodeShelf);
+    drawRectangle(context, midPole);
+    drawRectangle(context, highPole);
+    drawRectangle(context, scoringZoneBottom);
+    drawRectangle(context, openBottomShelf);
+    drawRectangle(context, substationLevel);
   };
 
   useEffect(() => {
@@ -144,6 +174,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
       window.cancelAnimationFrame(animationFrameId);
     };
   }, [value]);
+
 
   return (
     <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
