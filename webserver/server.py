@@ -26,6 +26,7 @@ inst = ntcore.NetworkTableInstance.getDefault()
 inst.startClient4("chaosboard")
 
 
+# inst.setServer("10.1.31.2")
 inst.setServer("localhost")
 
 def createNtMessage(topic, value, valueType):
