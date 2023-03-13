@@ -7,9 +7,9 @@ type CanvasProps = {
     entry: NTEntry | undefined,
 };
 export function FieldCanvas({ entry }: CanvasProps) {
-    const fieldWidthMeters = 15.980;
-    const robotWidthMeters = 0.686;
-    const robotHeightMeters = 0.820;
+    const fieldWidthMeters = 16.522;
+    const robotWidthMeters = 0.851;
+    const robotHeightMeters = 0.863;
     let divRef = createRef<HTMLDivElement>();
 
     let value = useNtEntry(entry);
@@ -47,14 +47,15 @@ export function FieldCanvas({ entry }: CanvasProps) {
             backgroundImage: 'url(/robot-image.png)',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
-            transform: `rotate(90deg) rotate(${360 - rotation}deg)`
+            transform: `rotate(${360 - rotation}deg)`
         } as CSSProperties;
         setRobotPosition(newState);
     }, [value, metersToPixelsRatio])
 
     return <div style={{position: 'relative'}} ref={divRef}>
         <div style={robotPosition}></div>
-        <img src="/2023-field.png" style={{ width: '100%', textAlign: 'center' }}></img>
+        <img src="/2023-cad-field.png" style={{ width: '100%', textAlign: 'center' }}></img>
+        {value?.join(", ")}
     </div>;
 }
 
