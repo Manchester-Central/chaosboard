@@ -119,8 +119,15 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
 
     let shoulderAngleDegrees = value?.[0] ?? 0;
     let extenderLengthMeters = value?.[1] ?? 1;
-    const extenderStart = Coordinate.fromMeters(0, shoulderPivot.yMeters + (shoulderPivot.heightMeters / 2));
-    const extenderEndpoint = drawLine(context, extenderStart,  shoulderAngleDegrees, extenderLengthMeters, 'orange', 25);
+    let extenderLength1 = 0.715;
+    let extenderLength2 = 0.748;
+    let extenderSeparationMeters = 0.06;
+    let extenderWidth = metersToPixels(0.051);
+    const extenderStart1 = Coordinate.fromMeters(0, shoulderPivot.yMeters + (shoulderPivot.heightMeters / 2));
+    const extenderEndpoint1 = drawLine(context, extenderStart1,  shoulderAngleDegrees, extenderLength1, 'orange', extenderWidth);
+    const extenderStart2A = drawLine(context, extenderStart1,  shoulderAngleDegrees + 90, extenderSeparationMeters, 'white', extenderWidth);
+    const extenderStart2B = drawLine(context, extenderStart2A,  shoulderAngleDegrees, extenderLengthMeters - extenderLength2, 'white', extenderWidth);
+    const extenderEndpoint2 = drawLine(context, extenderStart2B,  shoulderAngleDegrees, extenderLength2, 'orange', extenderWidth);
 
     let gripperPower = value?.[3] ?? 0;
     let gripperColor = 'red';
@@ -134,7 +141,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     let wristAngleDegrees = value?.[2] ?? 0;
     wristAngleDegrees += shoulderAngleDegrees;
     let wristLengthMeters = 0.30;
-    const wristEndpoint = drawLine(context, extenderEndpoint, wristAngleDegrees, wristLengthMeters, gripperColor, 25);
+    const wristEndpoint = drawLine(context, extenderEndpoint2, wristAngleDegrees, wristLengthMeters, gripperColor, 25);
 
     drawRoundRectangle(context, unsafeZone, 10);
     drawRoundRectangle(context, shoulderPivot, shoulderPivot.heightPixels / 2);
