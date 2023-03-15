@@ -120,7 +120,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     let shoulderAngleDegrees = value?.[0] ?? 0;
     let extenderLengthMeters = value?.[1] ?? 1;
     let extenderLength1 = 0.715;
-    let extenderLength2 = 0.748;
+    let extenderLength2 = 0.72;
     let extenderSeparationMeters = 0.06;
     let extenderWidth = metersToPixels(0.051);
     const extenderStart1 = Coordinate.fromMeters(0, shoulderPivot.yMeters + (shoulderPivot.heightMeters / 2));
@@ -128,6 +128,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const extenderStart2A = drawLine(context, extenderStart1,  shoulderAngleDegrees + 90, extenderSeparationMeters, 'white', extenderWidth);
     const extenderStart2B = drawLine(context, extenderStart2A,  shoulderAngleDegrees, extenderLengthMeters - extenderLength2, 'white', extenderWidth);
     const extenderEndpoint2 = drawLine(context, extenderStart2B,  shoulderAngleDegrees, extenderLength2, 'orange', extenderWidth);
+    drawLine(context, extenderEndpoint2,  shoulderAngleDegrees, 0.02, 'orange', extenderWidth)
 
     let gripperPower = value?.[3] ?? 0;
     let gripperColor = 'red';
@@ -140,8 +141,12 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
 
     let wristAngleDegrees = value?.[2] ?? 0;
     wristAngleDegrees += shoulderAngleDegrees;
-    let wristLengthMeters = 0.30;
-    const wristEndpoint = drawLine(context, extenderEndpoint2, wristAngleDegrees, wristLengthMeters, gripperColor, 25);
+    let wristLengthMeters = 0.321;
+    drawLine(context, extenderEndpoint2, wristAngleDegrees, 0.11, gripperColor, metersToPixels(0.14));
+    const wideSideOffset = drawLine(context, extenderEndpoint2, wristAngleDegrees + 90, 0.097 - 0.02, gripperColor, metersToPixels(0.06));
+    const narrowSideOffset = drawLine(context, extenderEndpoint2, wristAngleDegrees - 90, 0.08 - 0.03, gripperColor, metersToPixels(0.06));
+    drawLine(context, wideSideOffset, wristAngleDegrees + 2, wristLengthMeters, gripperColor, metersToPixels(0.06));
+    drawLine(context, narrowSideOffset, wristAngleDegrees - 3, wristLengthMeters, gripperColor, metersToPixels(0.04));
 
     drawRoundRectangle(context, unsafeZone, 10);
     drawRoundRectangle(context, shoulderPivot, shoulderPivot.heightPixels / 2);
