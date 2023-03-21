@@ -85,11 +85,17 @@ function NTModal() {
         return () => sub.unsubscribe();
     })
 
+    let reset = () => {
+        localStorage.clear();
+        window.location.reload();
+    }
+
     return (
         <div id='ntModal'>
             <button onClick={() => setModalOpen(true)} className='btn btn-dark btn-chaos'><FontAwesomeIcon icon={faAdd} /> Widget</button>
             <Modal isOpen={isModalOpen} style={styles}>
                 <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos'>Close</button>
+                <button onClick={() => reset()} className='ms-3 btn btn-dark btn-danger'>Clear All</button>
                 <NtContextObject.Consumer>
                     {context => <TableBody manager={context}></TableBody>}
                 </NtContextObject.Consumer>
