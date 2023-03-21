@@ -52,11 +52,13 @@ export function FieldCanvas({ entry }: CanvasProps) {
         setRobotPosition(newState);
     }, [value, metersToPixelsRatio])
 
-    return <div style={{position: 'relative'}} ref={divRef}>
-        <div style={robotPosition}></div>
-        <img src="/2023-cad-field.png" style={{ width: '100%', textAlign: 'center' }}></img>
+    return <>
+        <div style={{position: 'relative'}} ref={divRef}>
+            <div style={robotPosition}></div>
+            <img src="/2023-cad-field.png" style={{ width: '100%', textAlign: 'center' }}></img>
+        </div>
         {value?.join(", ")}
-    </div>;
+    </>;
 }
 
 type FieldDisplayProps = {
