@@ -95,7 +95,7 @@ export default class NTManager {
           throw 'socket data does not have networkTableUpdate property';
         }
       } catch (error) {
-        console.warn(`can't parse socket data:`, event, error);
+        //console.warn(`can't parse socket data:`, event, error);
         return;
       }
       let update = data.networkTableUpdate;

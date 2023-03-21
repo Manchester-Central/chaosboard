@@ -4,6 +4,7 @@ import { BoolDisplay } from './bool-display';
 import { ColorDisplay } from './color-display';
 import { FieldDisplay } from './field-display';
 import { SimpleDisplay } from './simple-text-display';
+import { StreamDisplay } from './stream-display';
 
 export enum DisplayType {
     Simple = 'Simple',
@@ -11,6 +12,7 @@ export enum DisplayType {
     Color = 'Color',
     Field = 'Field',
     Arm = 'Arm',
+    Stream = 'Stream',
 }
 
 type DisplayMapperProps = {
@@ -29,6 +31,8 @@ export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps
                 return ColorDisplay({entry});
             case DisplayType.Field:
                 return FieldDisplay({entry});
+            case DisplayType.Stream:
+                return StreamDisplay({entry});
             default:
                 return SimpleDisplay({entry});
         }

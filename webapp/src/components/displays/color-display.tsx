@@ -2,10 +2,10 @@ import { Textfit } from 'react-textfit';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
 
-type BoolDisplayProps = {
+type ColorDisplayProps = {
     entry: NTEntry | undefined,
 };
-export function ColorDisplay({ entry }: BoolDisplayProps) {
+export function ColorDisplay({ entry }: ColorDisplayProps) {
 
     let value = useNtEntry(entry);
 
