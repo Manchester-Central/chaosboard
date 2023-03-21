@@ -57,7 +57,7 @@ export function FieldCanvas({ entry }: CanvasProps) {
             <div style={robotPosition}></div>
             <img src="/2023-cad-field.png" style={{ width: '100%', textAlign: 'center' }}></img>
         </div>
-        {value?.join(", ")}
+        {/* {value?.join(", ")} */}
     </>;
 }
 

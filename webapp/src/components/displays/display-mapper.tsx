@@ -1,5 +1,6 @@
 import { NTEntry } from '../../data/nt-manager';
 import { ArmDisplay } from './arm-display';
+import { AutoStepsDisplay } from './auto-steps.display';
 import { BoolDisplay } from './bool-display';
 import { ColorDisplay } from './color-display';
 import { FieldDisplay } from './field-display';
@@ -13,6 +14,7 @@ export enum DisplayType {
     Field = 'Field',
     Arm = 'Arm',
     Stream = 'Stream',
+    AutoSteps = 'Auto Steps',
 }
 
 type DisplayMapperProps = {
@@ -33,6 +35,8 @@ export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps
                 return FieldDisplay({entry});
             case DisplayType.Stream:
                 return StreamDisplay({entry});
+            case DisplayType.AutoSteps:
+                return AutoStepsDisplay({entry});
             default:
                 return SimpleDisplay({entry});
         }
@@ -64,6 +68,8 @@ export function getDefaultType(entry: NTEntry) {
                 return DisplayType.Color;
             }
             return DisplayType.Simple;
+        case 'string[]':
+            return DisplayType.AutoSteps;
         default:
             return DisplayType.Simple;
     }

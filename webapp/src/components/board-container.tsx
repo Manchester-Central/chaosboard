@@ -146,7 +146,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                                     <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setModalBoxState(box)}/> {title} <small style={{fontSize: '0.5em'}}>{key}</small>
                                 </Textfit>
                             </div>
-                            <div className='card-body d-flex justify-content-center align-items-center p-0'>
+                            <div className='card-body p-0' style={{overflowY: 'auto'}}>
                                 <DisplayMapper entry={entry} selectedDisplayType={displayType}></DisplayMapper>
                             </div>
                         </div>

@@ -191,7 +191,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
   return (
     <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
       <canvas width={pixelsForDisplay} height={pixelsForDisplay} style={{ width: '100%', height: '100%', border: '1px solid black' }} ref={canvasRef}></canvas>
-      {value?.join(", ")}
+      {/* {value?.join(", ")} */}
     </div>
   );
 
