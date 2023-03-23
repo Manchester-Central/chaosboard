@@ -90,7 +90,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     const unsafeZone = createShape(0.4, 0.130, 0, 0.1, unsafeColor);
     const shoulderPivotDiamterMeters = 0.2;
     const shoulderPivot = createShape(shoulderPivotDiamterMeters, shoulderPivotDiamterMeters, 0, 1.12, 'lightgray');
-    const mast = createShape(0.051, 1.39, 0, 0.1, 'forestgreen');
+    const mast = createShape(0.051, 1.29, 0, 0.1, 'forestgreen');
     const wheelDiameterMeters = 0.102;
     const wheelLeft = createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'blue');
     const wheelRight = createShape(wheelDiameterMeters, wheelDiameterMeters, 0.27, 0.0, 'blue');
