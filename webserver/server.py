@@ -27,6 +27,7 @@ inst.startClient4("chaosboard")
 
 
 inst.setServer("localhost")
+# inst.setServer("10.1.31.2")
 
 def createNtMessage(topic, value, valueType):
     return json.dumps({"networkTableUpdate": {
