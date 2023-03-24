@@ -20,13 +20,18 @@ import json
 
 # logging.basicConfig(level=logging.DEBUG)
 
+argParser = argparse.ArgumentParser()
+argParser.add_argument("-s", "--source", help="the host to connect to network tables")
+args = argParser.parse_args()
+print("args=%s" % args)
+
 nst = ntcore.NetworkTableInstance.getDefault()
 inst = ntcore.NetworkTableInstance.getDefault()
 
 inst.startClient4("chaosboard")
 
-
-inst.setServer("localhost")
+inst.setServer(args.source)
+# inst.setServer("localhost")
 # inst.setServer("10.1.31.2")
 
 def createNtMessage(topic, value, valueType):

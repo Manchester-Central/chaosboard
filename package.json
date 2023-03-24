@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently --kill-others \"py -3 .\\webserver\\server.py localhost\" \"npm --prefix webapp start\"",
+    "start": "npm run robot",
+    "local": "concurrently --kill-others \"py -3 .\\webserver\\server.py --source localhost\" \"npm --prefix webapp start\"",
+    "robot": "concurrently --kill-others \"py -3 .\\webserver\\server.py --source 10.1.31.2\" \"npm --prefix webapp start\"",
     "setup": "npm install && npm --prefix webapp install --force && py -m pip install pyntcore asyncio websockets"
   },
   "author": "",
