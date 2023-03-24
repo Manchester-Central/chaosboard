@@ -7,7 +7,7 @@ type SimpleDisplayProps = {
 };
 export function SimpleDisplay({ entry }: SimpleDisplayProps) {
 
-    let value = useNtEntry(entry);
+    let [value, updateValue] = useNtEntry(entry);
 
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>

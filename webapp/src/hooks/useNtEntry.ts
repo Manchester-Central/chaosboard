@@ -11,7 +11,11 @@ function useNtEntry(entry: NTEntry | undefined) {
       return () => sub?.unsubscribe();
   })
 
-  return value;
+  const update = (newValue: any) => {
+    entry?.publishNewValue(newValue);
+  }
+
+  return [value, update] as [value: any, func: (newValue: any) => void];
 }
 
 export default useNtEntry;

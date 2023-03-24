@@ -19,7 +19,7 @@ type TableRowProps = {
 };
 function TableRow({ node, entry, level }: TableRowProps) {
 
-    let value = useNtEntry(entry);
+    let [value] = useNtEntry(entry);
 
     return (
         <tr key={entry?.key}>

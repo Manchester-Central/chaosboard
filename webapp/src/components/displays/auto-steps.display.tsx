@@ -19,7 +19,7 @@ type AutoStepsProps = {
 };
 export function AutoStepsDisplay({ entry }: AutoStepsProps) {
 
-    let value = useNtEntry(entry);
+    let [value, updateValue] = useNtEntry(entry);
 
     if(!Array.isArray(value)) {
         return <SimpleDisplay entry={entry}></SimpleDisplay>;
@@ -37,17 +37,20 @@ export function AutoStepsDisplay({ entry }: AutoStepsProps) {
     }
 
     return (
-        <ul className='list-group list-group-flush'>
-            {value.map(value => {
-                const step = new AutoStep(value);
-                const params = [...step.params.entries()].map(([key, value]) => {
-                    return <span className={`badge ${getStyle(key)} me-1`}><span style={{fontSize: '0.7em'}}>{key}:</span> {value}</span>
-                })
-                return <li className='list-group-item p-2'>
-                    <h5 className='mb-0'>{step.command} {params}</h5>
-                     
-                </li>;
-            })}
-        </ul>
+        <>
+            <button onClick={() => updateValue(['test', '2', '3'])}>Test</button>
+            <ul className='list-group list-group-flush'>
+                {value.map(value => {
+                    const step = new AutoStep(value);
+                    const params = [...step.params.entries()].map(([key, value]) => {
+                        return <span className={`badge ${getStyle(key)} me-1`}><span style={{fontSize: '0.7em'}}>{key}:</span> {value}</span>
+                    })
+                    return <li className='list-group-item p-2'>
+                        <h5 className='mb-0'>{step.command} {params}</h5>
+                        
+                    </li>;
+                })}
+            </ul>
+        </>
     );
 }

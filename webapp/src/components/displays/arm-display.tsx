@@ -80,7 +80,7 @@ export function ArmDisplay({ entry }: ArmDisplayProps) {
     return new Coordinate(endX, endY);
   }
 
-  let value = useNtEntry(entry);
+  let [value, updateValue] = useNtEntry(entry);
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const draw = (context: CanvasRenderingContext2D, frameCount: number) => {

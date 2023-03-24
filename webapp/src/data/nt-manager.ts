@@ -16,18 +16,28 @@ export class NTEntry {
   title: string;
 
   constructor(
+    private ntManager: NTManager,
     public readonly key: string,
     public latestValue?: NTUpdate,
-    public readonly values: NTUpdate[] = []
+    public readonly values: NTUpdate[] = [],
   ) {
     const splitKeys = key.split('/');
     this.title = splitKeys[splitKeys.length - 1];
   }
 
-  updateValue(update: NTUpdate) {
+  newValueFromNt(update: NTUpdate) {
     this.latestValue = update;
     //this.values.push(update); // TODO: Implement size limit so memory doesn't keep growing
     this.onUpdatedSubject.next(update);
+  }
+
+  publishNewValue(value: any) {
+    console.log(value);
+    this.ntManager.sendUpdateToNt({
+      key: this.key,
+      valueType: this.latestValue?.valueType ?? 'unknown',
+      value
+    })
   }
 }
 
@@ -59,8 +69,10 @@ export default class NTManager {
   private entries = new Map<string, NTEntry>();
   private onNewValueSubject = new Subject<NTEntry>();
   onNewValue = this.onNewValueSubject.asObservable();
+  private ws: WebSocket;
 
   constructor() {
+    this.ws = new WebSocket('ws://localhost:13102');
     this.connect();
   }
 
@@ -73,21 +85,24 @@ export default class NTManager {
 
   getEntry(key: string) {
     if (!this.entries.has(key)) {
-      this.entries.set(key, new NTEntry(key));
+      this.entries.set(key, new NTEntry(this, key));
     }
     return this.entries.get(key);
   }
 
+  sendUpdateToNt(ntUpdate: NTUpdate) {
+    this.ws.send(JSON.stringify(ntUpdate));
+  }
+
   connect() {
-    var ws = new WebSocket('ws://localhost:13102');
-    ws.onopen = (e) => {
+    this.ws.onopen = (e) => {
       // subscribe to some channels
-      ws.send(JSON.stringify({
-        //.... some message the I must send when I connect ....
-      }));
+      // this.ws.send(JSON.stringify({
+      //   //.... some message the I must send when I connect ....
+      // }));
     };
 
-    ws.onmessage = (event) => {
+    this.ws.onmessage = (event) => {
       let data: NTUpdateMessage;
       try {
         data = JSON.parse(event.data);
@@ -101,13 +116,13 @@ export default class NTManager {
       let update = data.networkTableUpdate;
       let isNewEntry = false;
       let entry = this.entries.get(update.key) ?? (() => {
-        let newEntry = new NTEntry(update.key);
+        let newEntry = new NTEntry(this, update.key);
         this.entries.set(update.key, newEntry);
         isNewEntry = true;
         return newEntry;
       })();
       isNewEntry ||= !entry.latestValue;
-      entry.updateValue(update);
+      entry.newValueFromNt(update);
       this.entries.set(update.key, entry);
       this.tree.addValue(entry, update);
       if (isNewEntry) {
@@ -116,16 +131,16 @@ export default class NTManager {
       //console.log(update);
     };
 
-    ws.onclose = (e) => {
+    this.ws.onclose = (e) => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
       setTimeout(() => {
         this.connect();
       }, 1000);
     };
 
-    ws.onerror = (e) => {
+    this.ws.onerror = (e) => {
       console.error('Socket encountered error: ', e, 'Closing socket');
-      ws.close();
+      this.ws.close();
     };
   }
 }

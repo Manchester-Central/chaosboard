@@ -12,7 +12,7 @@ export function FieldCanvas({ entry }: CanvasProps) {
     const robotHeightMeters = 0.863;
     let divRef = createRef<HTMLDivElement>();
 
-    let value = useNtEntry(entry);
+    let [value, updateValue] = useNtEntry(entry);
     let [robotPosition, setRobotPosition] = useState<CSSProperties>({});
     let [metersToPixelsRatio, setMetersToPixelsRatio] = useState<number>(1);
     const metersToPixel = (meters: number) => {

@@ -12,6 +12,7 @@ import argparse
 from os.path import basename
 import logging
 import time
+import traceback
 
 import ntcore
 import asyncio
@@ -53,7 +54,28 @@ async def register(websocket):
         for topic in topics:
             value = inst.getEntry(topic.getName()).getValue().value();
             await websocket.send(createNtMessage(topic.getName(), value, topic.getTypeString()))
-        await websocket.wait_closed()
+        async for message in websocket:
+            try: 
+                print(message)
+                print(json.loads(message))
+                update = json.loads(message)
+                topic = inst.getTopic(update['key'])
+                print(topic.getName())
+                entry = inst.getEntry(topic.getName())
+                print(entry.getValue().value())
+                entry.setValue(update['value'])
+                response = {"networkTableUpdate": {
+                        "key": topic.getName(),
+                        "value": entry.getValue().value(),
+                        "valueType": topic.getTypeString()
+                        # type,
+                        # id,
+                        # flags
+                    }}
+                websockets.broadcast(CONNECTIONS, json.dumps(response))
+            except:
+                print("message parsing failed")
+                traceback.print_exc()
     finally:
         CONNECTIONS.remove(websocket)
 

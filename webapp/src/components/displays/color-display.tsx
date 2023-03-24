@@ -7,7 +7,7 @@ type ColorDisplayProps = {
 };
 export function ColorDisplay({ entry }: ColorDisplayProps) {
 
-    let value = useNtEntry(entry);
+    let [value, updateValue] = useNtEntry(entry);
 
     return (
         <div style={{ width: '100%', height: '100%', backgroundColor: value, textAlign: 'center' }} className={'p-2'}>

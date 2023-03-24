@@ -6,7 +6,7 @@ type StreamDisplayProps = {
 };
 export function StreamDisplay({ entry }: StreamDisplayProps) {
 
-    let value = useNtEntry(entry);
+    let [value, updateValue] = useNtEntry(entry);
 
     if(!value) {
         return;
