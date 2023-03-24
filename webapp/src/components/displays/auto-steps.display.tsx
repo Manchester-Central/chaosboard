@@ -50,7 +50,7 @@ export function AutoStepsDisplay({ entry }: AutoStepsProps) {
         const reader = new FileReader()
         reader.onload = async (e: any) => { 
           const text = (e.target.result) as string;
-          updateValue(text.split('\n'))
+          updateValue(text.split('\n').map(s => s.trim()))
         };
         reader.readAsText(event.target.files[0])
     }

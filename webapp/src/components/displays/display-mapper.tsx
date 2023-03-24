@@ -6,6 +6,7 @@ import { ColorDisplay } from './color-display';
 import { FieldDisplay } from './field-display';
 import { SimpleDisplay } from './simple-text-display';
 import { StreamDisplay } from './stream-display';
+import { TempDisplay } from './temp-display';
 
 export enum DisplayType {
     Simple = 'Simple',
@@ -15,6 +16,7 @@ export enum DisplayType {
     Arm = 'Arm',
     Stream = 'Stream',
     AutoSteps = 'Auto Steps',
+    Temp = 'Temp',
 }
 
 type DisplayMapperProps = {
@@ -37,6 +39,8 @@ export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps
                 return StreamDisplay({entry});
             case DisplayType.AutoSteps:
                 return AutoStepsDisplay({entry});
+            case DisplayType.Temp:
+                return TempDisplay({entry});
             default:
                 return SimpleDisplay({entry});
         }
