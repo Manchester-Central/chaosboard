@@ -56,13 +56,9 @@ async def register(websocket):
             await websocket.send(createNtMessage(topic.getName(), value, topic.getTypeString()))
         async for message in websocket:
             try: 
-                print(message)
-                print(json.loads(message))
                 update = json.loads(message)
                 topic = inst.getTopic(update['key'])
-                print(topic.getName())
                 entry = inst.getEntry(topic.getName())
-                print(entry.getValue().value())
                 entry.setValue(update['value'])
                 response = {"networkTableUpdate": {
                         "key": topic.getName(),

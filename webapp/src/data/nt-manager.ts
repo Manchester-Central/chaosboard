@@ -32,7 +32,6 @@ export class NTEntry {
   }
 
   publishNewValue(value: any) {
-    console.log(value);
     this.ntManager.sendUpdateToNt({
       key: this.key,
       valueType: this.latestValue?.valueType ?? 'unknown',

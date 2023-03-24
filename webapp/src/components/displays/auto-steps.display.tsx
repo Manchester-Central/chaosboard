@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Textfit } from 'react-textfit';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
@@ -20,6 +21,7 @@ type AutoStepsProps = {
 export function AutoStepsDisplay({ entry }: AutoStepsProps) {
 
     let [value, updateValue] = useNtEntry(entry);
+    const inputFile = useRef<HTMLInputElement>(null) 
 
     if(!Array.isArray(value)) {
         return <SimpleDisplay entry={entry}></SimpleDisplay>;
@@ -36,9 +38,29 @@ export function AutoStepsDisplay({ entry }: AutoStepsProps) {
         }
     }
 
+    const onButtonClick = () => {
+    // `current` points to the mounted file input element
+        inputFile.current?.click();
+    };
+
+    const onChangeFile = (event: any)  => {
+        event.stopPropagation();
+        event.preventDefault();
+        var file = event.target.files[0];
+        const reader = new FileReader()
+        reader.onload = async (e: any) => { 
+          const text = (e.target.result) as string;
+          updateValue(text.split('\n'))
+        };
+        reader.readAsText(event.target.files[0])
+    }
+
     return (
         <>
-            <button onClick={() => updateValue(['test', '2', '3'])}>Test</button>
+            <div className='d-grid gap-2'>
+                <button className='btn btn-chaos' onClick={onButtonClick}>Upload Auto</button>
+            </div>
+            <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={onChangeFile}/>
             <ul className='list-group list-group-flush'>
                 {value.map(value => {
                     const step = new AutoStep(value);
