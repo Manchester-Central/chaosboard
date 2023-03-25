@@ -23,10 +23,10 @@ function TableRow({ node, entry, level }: TableRowProps) {
 
     return (
         <tr key={entry?.key}>
-            <td style={{ paddingLeft: level * 20 + 'px', width: '20%' }}>{node?.key}</td>
-            <td>{value?.toString()}</td>
-            <td style={{ width: '20%' }}>{entry?.latestValue?.valueType?.toString()}</td>
             <td style={{ width: '50px' }}>{entry ? <button className='btn btn-dark btn-chaos btn-sm' onClick={() => onWidgetAddedSubject.next(entry)}><FontAwesomeIcon icon={faAdd} /></button> : <></>}</td>
+            <td style={{ paddingLeft: level * 20 + 'px', width: '20%' }}>{node?.key}</td>
+            <td style={{ width: '50%', maxWidth: '50%' }}>{(value?.toString() as string)?.split(',').map(a => <p>{a}</p>)}</td>
+            <td style={{ width: '20%' }}>{entry?.latestValue?.valueType?.toString()}</td>
         </tr>
     );
 }
@@ -57,6 +57,7 @@ function TableBody({ manager }: TableBodyProps) {
         <table className='table Value-Table'>
             <thead>
                 <tr>
+                    <th></th>
                     <th>Key</th>
                     <th>Value</th>
                     <th>Type</th>

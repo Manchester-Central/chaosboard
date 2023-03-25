@@ -65,11 +65,16 @@ function BoardContainer({ manager }: BoardContainerProps) {
             setBoxes(
                 { ...boxes }
             )
+            preserveBoxes();
         })
     })
 
-    useEffect(() => {
+    const preserveBoxes = () => {
         localStorage.setItem('nt-boxes', JSON.stringify(boxes));
+    }
+
+    useEffect(() => {
+        preserveBoxes();
     }, [boxes])
 
     const boxDragged = useCallback((event: any, data: DraggableData) => {
@@ -81,6 +86,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 },
             }),
         )
+        preserveBoxes();
     }, [boxes, setBoxes]);
 
     const boxResized = useCallback((event: any, direction: any, ref: HTMLElement) => {
@@ -92,6 +98,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 },
             }),
         )
+        preserveBoxes();
     }, [boxes, setBoxes]);
 
     const typeChanged = useCallback((key: string, type?: DisplayType) => {
@@ -102,12 +109,14 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 },
             }),
         )
+        preserveBoxes();
     }, []);
 
     const boxDeleted = useCallback((key: string) => {
         delete boxes[key]
+        preserveBoxes();
         setBoxes(
-            boxes
+            { ...boxes }
         )
         setModalBoxState(undefined)
     }, []);
