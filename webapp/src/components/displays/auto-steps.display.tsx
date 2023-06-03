@@ -60,7 +60,7 @@ export function AutoStepsDisplay({ entry }: AutoStepsProps) {
             <div className='d-grid gap-2'>
                 <button className='btn btn-chaos' onClick={onButtonClick}>Upload Auto</button>
             </div>
-            <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={onChangeFile}/>
+            <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={onChangeFile} onClick={(event)=> (event.target as HTMLInputElement).value = ''}/>
             <ul className='list-group list-group-flush'>
                 {value.map(value => {
                     const step = new AutoStep(value);
