@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { HistoryManager } from '../data/history-manager';
 import { NTEntry } from '../data/nt-manager';
 
 function useNtEntry(entry: NTEntry | undefined) {
@@ -11,11 +12,12 @@ function useNtEntry(entry: NTEntry | undefined) {
       return () => sub?.unsubscribe();
   })
 
-  const update = (newValue: any) => {
+  const update = (newValue: any, historyManager: HistoryManager) => {
     entry?.publishNewValue(newValue);
+    historyManager.updateHistory(entry, newValue);
   }
 
-  return [value, update] as [value: any, func: (newValue: any) => void];
+  return [value, update] as [value: any, func: (newValue: any, history: HistoryManager) => void];
 }
 
 export default useNtEntry;

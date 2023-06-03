@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faHistory } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/css/bootstrap.css';
 import update from 'immutability-helper';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,6 +12,7 @@ import { DisplayMapper, DisplayType, getDefaultType } from './displays/display-m
 import { NtContextObject } from './nt-container';
 import Modal from 'react-modal';
 import Select from 'react-select'
+import { HistoryManager } from '../data/history-manager';
 
 interface BoxState {
     key: string
@@ -44,6 +45,8 @@ type BoardContainerProps = {
     manager: NTManager,
 };
 function BoardContainer({ manager }: BoardContainerProps) {
+    const historyManager = new HistoryManager(manager);
+
     const [boxes, setBoxes] = useState<{
         [key: string]: BoxState
     }>(JSON.parse(localStorage.getItem('nt-boxes') ?? '{}'))
@@ -152,11 +155,11 @@ function BoardContainer({ manager }: BoardContainerProps) {
                         <div className='card' style={{ height: '100%' }}>
                             <div className='handle card-header' style={{ cursor: 'move', width: '100%' }}>
                                 <Textfit mode="single" max={20}>
-                                    <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setModalBoxState(box)}/> {title} <small style={{fontSize: '0.5em'}}>{key}</small>
+                                    <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setModalBoxState(box)}/> {historyManager.hasHistory(entry) ? <FontAwesomeIcon icon={faHistory} style={{cursor: 'pointer'}} onClick={() => setModalBoxState(box)}/>: <></>} {title} <small style={{fontSize: '0.5em'}}>{key}</small>
                                 </Textfit>
                             </div>
                             <div className='card-body p-0' style={{overflowY: 'auto'}}>
-                                <DisplayMapper entry={entry} selectedDisplayType={displayType}></DisplayMapper>
+                                <DisplayMapper entry={entry} selectedDisplayType={displayType} historyManager={historyManager}></DisplayMapper>
                             </div>
                         </div>
                     </Rnd>

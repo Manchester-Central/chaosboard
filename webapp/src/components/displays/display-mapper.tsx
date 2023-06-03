@@ -1,3 +1,4 @@
+import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
 import { ArmDisplay } from './arm-display';
 import { AutoStepsDisplay } from './auto-steps.display';
@@ -21,9 +22,10 @@ export enum DisplayType {
 
 type DisplayMapperProps = {
     entry: NTEntry | undefined,
-    selectedDisplayType: DisplayType
+    selectedDisplayType: DisplayType,
+    historyManager: HistoryManager
 };
-export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps) {
+export function DisplayMapper({ entry, selectedDisplayType, historyManager }: DisplayMapperProps) {
 
     const getDisplay = () => {
         switch(selectedDisplayType) {
@@ -38,7 +40,7 @@ export function DisplayMapper({ entry, selectedDisplayType }: DisplayMapperProps
             case DisplayType.Stream:
                 return StreamDisplay({entry});
             case DisplayType.AutoSteps:
-                return AutoStepsDisplay({entry});
+                return AutoStepsDisplay({entry, historyManager});
             case DisplayType.Temp:
                 return TempDisplay({entry});
             default:

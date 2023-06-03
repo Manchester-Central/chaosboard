@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
 import { FieldCanvas } from './shared/field-component';
@@ -40,8 +41,9 @@ class AutoStep {
 
 type AutoStepsProps = {
     entry: NTEntry | undefined,
+    historyManager: HistoryManager
 };
-export function AutoStepsDisplay({ entry }: AutoStepsProps) {
+export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
 
     let [value, updateValue] = useNtEntry(entry);
     const inputFile = useRef<HTMLInputElement>(null) 
@@ -73,7 +75,7 @@ export function AutoStepsDisplay({ entry }: AutoStepsProps) {
         const reader = new FileReader()
         reader.onload = async (e: any) => { 
           const text = (e.target.result) as string;
-          updateValue(text.split('\n').map(s => s.trim()))
+          updateValue(text.split('\n').map(s => s.trim()), historyManager)
         };
         reader.readAsText(event.target.files[0])
     }
