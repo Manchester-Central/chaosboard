@@ -25,10 +25,8 @@ function HistoryModal({entry, historyManager} : HistoryModalProps) {
     Modal.setAppElement('#root')
 
     const formatHistoryValue = (value: any | any[]) => {
-        if(Array.isArray(value)) {
-            return <ul>{value.map(v => <li>{v}</li>)}</ul>
-        }
-        return <span>value</span>;
+        const values = Array.isArray(value) ? value : [value];
+        return <ul className="list-group list-group-flush">{values.map(v => <li className="list-group-item" style={{paddingTop: 2, paddingBottom: 2}}>{v}</li>)}</ul>
     }
 
     const revert = (oldValue: any) => {
