@@ -44,4 +44,11 @@ export class HistoryManager {
         existingEntries.unshift(new HistoryEntry(newValue, new Date().getTime(), label))
         localStorage.setItem(this.getKey(entry), JSON.stringify(existingEntries));
     }
+
+    clearHistory(entry: NTEntry | undefined) {
+        if(!entry) {
+            return;
+        }
+        localStorage.removeItem(this.getKey(entry));
+    }
 }

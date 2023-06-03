@@ -25,7 +25,7 @@ interface BoxState {
     displayType: DisplayType
 }
 
-const modalStyle: Modal.Styles = {
+const settingsModalStyle: Modal.Styles = {
     overlay: {
         zIndex: 99999
     },
@@ -38,6 +38,14 @@ const modalStyle: Modal.Styles = {
       transform: 'translate(-50%, -50%)',
       height: '400px',
       width: '400px',
+    },
+}
+
+const historyModalStyle: Modal.Styles = {
+    overlay: {
+        zIndex: 99999
+    },
+    content: {
     },
 }
 
@@ -121,21 +129,31 @@ function BoardContainer({ manager }: BoardContainerProps) {
         setBoxes(
             { ...boxes }
         )
-        setModalBoxState(undefined)
+        setSettingsModalBoxState(undefined)
     }, []);
 
-    const [modalBoxState, setModalBoxState] = useState<BoxState | undefined>();
+    const [settingsModalBoxState, setSettingsModalBoxState] = useState<BoxState | undefined>();
+    const [historyModalEntry, setHistoryModalEntry] = useState<NTEntry | undefined>();
 
     Modal.setAppElement('#root')
 
     const selectOptions = Object.values(DisplayType).map(type => ({value: type as DisplayType, label: type}));
 
+    const formatHistoryValue = (value: any | any[]) => {
+        if(Array.isArray(value)) {
+            return <ul>{value.map(v => <li>{v}</li>)}</ul>
+        }
+        return <span>value</span>;
+    }
+
     return (
         <div>
             {Object.keys(boxes).map((key) => {
                 const box = boxes[key];
-                const { left, top, title, zIndex, height, width, displayType } = box
+                const { left, top, title, zIndex, height, width, displayType } = box;
                 const entry = manager.getEntry(key);
+                const settingsButton = <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setSettingsModalBoxState(box)}/>;
+                const historyButton = historyManager.hasHistory(entry) ? <FontAwesomeIcon icon={faHistory} style={{cursor: 'pointer'}} onClick={() => setHistoryModalEntry(entry)}/>: <></>;
                 return (
                     <Rnd
                         id={key}
@@ -155,7 +173,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                         <div className='card' style={{ height: '100%' }}>
                             <div className='handle card-header' style={{ cursor: 'move', width: '100%' }}>
                                 <Textfit mode="single" max={20}>
-                                    <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setModalBoxState(box)}/> {historyManager.hasHistory(entry) ? <FontAwesomeIcon icon={faHistory} style={{cursor: 'pointer'}} onClick={() => setModalBoxState(box)}/>: <></>} {title} <small style={{fontSize: '0.5em'}}>{key}</small>
+                                    {settingsButton} {historyButton} {title} <small style={{fontSize: '0.5em'}}>{key}</small>
                                 </Textfit>
                             </div>
                             <div className='card-body p-0' style={{overflowY: 'auto'}}>
@@ -165,16 +183,46 @@ function BoardContainer({ manager }: BoardContainerProps) {
                     </Rnd>
                 )
             })}
-            <Modal isOpen={!!modalBoxState} style={modalStyle}>
+            <Modal isOpen={!!settingsModalBoxState} style={settingsModalStyle} >
                 <h1>
-                    {modalBoxState?.title}
+                    {settingsModalBoxState?.title}
                 </h1>
                 <div>
-                    <Select options={selectOptions} defaultValue={selectOptions.find(x => x.value === modalBoxState?.displayType)} onChange={value => typeChanged(modalBoxState?.key ?? '', value?.value)}/>
+                    <Select options={selectOptions} defaultValue={selectOptions.find(x => x.value === settingsModalBoxState?.displayType)} onChange={value => typeChanged(settingsModalBoxState?.key ?? '', value?.value)}/>
                 </div>
                 <div className="d-grid gap-2 d-md-block mt-5">
-                    <button onClick={() => boxDeleted(modalBoxState?.key ?? '')} className='btn btn-block btn-danger'>Delete</button>
-                    <button onClick={() => setModalBoxState(undefined)} className='btn btn-chaos ms-2'>Close</button>
+                    <button onClick={() => boxDeleted(settingsModalBoxState?.key ?? '')} className='btn btn-block btn-danger'>Delete</button>
+                    <button onClick={() => setSettingsModalBoxState(undefined)} className='btn btn-chaos ms-2'>Close</button>
+                </div>
+                
+            </Modal>
+            <Modal isOpen={!!historyModalEntry} style={historyModalStyle} >
+                <h1>
+                    History - {historyModalEntry?.title}
+                </h1>
+                <div>
+                    <table className='table table-striped'>
+                        <thead>
+                            <tr>
+                                <th>Match</th>
+                                <th>Time</th>
+                                <th style={{ width: '50%', maxWidth: '50%' }}>Value</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {historyManager.getHistory(historyModalEntry).map(historyRecord => (<tr>
+                                <td>{historyRecord.label}</td>
+                                <td>{new Date(historyRecord.timestamp).toLocaleString()}</td>
+                                <td>{formatHistoryValue(historyRecord.value)}</td>
+                                <td><button onClick={() => historyModalEntry?.publishNewValue(historyRecord.value)} className='btn btn-dark ms-2'>Revert</button></td>
+                            </tr>))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="d-grid gap-2 d-md-block mt-5">
+                    <button onClick={() => {historyManager.clearHistory(historyModalEntry); setHistoryModalEntry(undefined)}} className='btn btn-block btn-danger'>Clear History</button>
+                    <button onClick={() => setHistoryModalEntry(undefined)} className='btn btn-chaos ms-2'>Close</button>
                 </div>
                 
             </Modal>
