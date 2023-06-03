@@ -87,7 +87,7 @@ function NTModal() {
     })
 
     let reset = () => {
-        localStorage.clear();
+        localStorage.removeItem('nt-boxes');
         window.location.reload();
     }
 
@@ -95,8 +95,11 @@ function NTModal() {
         <div id='ntModal'>
             <button onClick={() => setModalOpen(true)} className='btn btn-dark btn-chaos'><FontAwesomeIcon icon={faAdd} /> Widget</button>
             <Modal isOpen={isModalOpen} style={styles}>
-                <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos'>Close</button>
-                <button onClick={() => reset()} className='ms-3 btn btn-dark btn-danger'>Clear All</button>
+                <div className="sticky-top d-flex" style={{backgroundColor: 'white'}}>
+                    <h1 className="flex-fill">Network Table Entries</h1>
+                    <button onClick={() => reset()} className='btn btn-danger'>Clear All</button>
+                    <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos ms-2'>Close</button>
+                </div>
                 <NtContextObject.Consumer>
                     {context => <TableBody manager={context}></TableBody>}
                 </NtContextObject.Consumer>

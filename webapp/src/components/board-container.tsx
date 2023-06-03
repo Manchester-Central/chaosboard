@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGear, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { faGear } from '@fortawesome/free-solid-svg-icons';
 import 'bootstrap/dist/css/bootstrap.css';
 import update from 'immutability-helper';
 import { useCallback, useEffect, useState } from 'react';
@@ -7,12 +7,13 @@ import { DraggableData, Rnd } from 'react-rnd';
 import { Textfit } from 'react-textfit';
 import '../App.css';
 import { onWidgetAdded } from '../components/nt-modal';
-import NTManager, { NTEntry } from '../data/nt-manager';
+import NTManager from '../data/nt-manager';
 import { DisplayMapper, DisplayType, getDefaultType } from './displays/display-mapper';
 import { NtContextObject } from './nt-container';
 import Modal from 'react-modal';
 import Select from 'react-select'
 import { HistoryManager } from '../data/history-manager';
+import HistoryModal from './history-modal';
 
 interface BoxState {
     key: string
@@ -38,14 +39,6 @@ const settingsModalStyle: Modal.Styles = {
       transform: 'translate(-50%, -50%)',
       height: '400px',
       width: '400px',
-    },
-}
-
-const historyModalStyle: Modal.Styles = {
-    overlay: {
-        zIndex: 99999
-    },
-    content: {
     },
 }
 
@@ -133,18 +126,10 @@ function BoardContainer({ manager }: BoardContainerProps) {
     }, []);
 
     const [settingsModalBoxState, setSettingsModalBoxState] = useState<BoxState | undefined>();
-    const [historyModalEntry, setHistoryModalEntry] = useState<NTEntry | undefined>();
 
     Modal.setAppElement('#root')
 
     const selectOptions = Object.values(DisplayType).map(type => ({value: type as DisplayType, label: type}));
-
-    const formatHistoryValue = (value: any | any[]) => {
-        if(Array.isArray(value)) {
-            return <ul>{value.map(v => <li>{v}</li>)}</ul>
-        }
-        return <span>value</span>;
-    }
 
     return (
         <div>
@@ -153,7 +138,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 const { left, top, title, zIndex, height, width, displayType } = box;
                 const entry = manager.getEntry(key);
                 const settingsButton = <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setSettingsModalBoxState(box)}/>;
-                const historyButton = historyManager.hasHistory(entry) ? <FontAwesomeIcon icon={faHistory} style={{cursor: 'pointer'}} onClick={() => setHistoryModalEntry(entry)}/>: <></>;
+                const historyButton = !!entry && historyManager.hasHistory(entry) ? <HistoryModal entry={entry} historyManager={historyManager}></HistoryModal> : <></>;
                 return (
                     <Rnd
                         id={key}
@@ -193,36 +178,6 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 <div className="d-grid gap-2 d-md-block mt-5">
                     <button onClick={() => boxDeleted(settingsModalBoxState?.key ?? '')} className='btn btn-block btn-danger'>Delete</button>
                     <button onClick={() => setSettingsModalBoxState(undefined)} className='btn btn-chaos ms-2'>Close</button>
-                </div>
-                
-            </Modal>
-            <Modal isOpen={!!historyModalEntry} style={historyModalStyle} >
-                <h1>
-                    History - {historyModalEntry?.title}
-                </h1>
-                <div>
-                    <table className='table table-striped'>
-                        <thead>
-                            <tr>
-                                <th>Match</th>
-                                <th>Time</th>
-                                <th style={{ width: '50%', maxWidth: '50%' }}>Value</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {historyManager.getHistory(historyModalEntry).map(historyRecord => (<tr>
-                                <td>{historyRecord.label}</td>
-                                <td>{new Date(historyRecord.timestamp).toLocaleString()}</td>
-                                <td>{formatHistoryValue(historyRecord.value)}</td>
-                                <td><button onClick={() => historyModalEntry?.publishNewValue(historyRecord.value)} className='btn btn-dark ms-2'>Revert</button></td>
-                            </tr>))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="d-grid gap-2 d-md-block mt-5">
-                    <button onClick={() => {historyManager.clearHistory(historyModalEntry); setHistoryModalEntry(undefined)}} className='btn btn-block btn-danger'>Clear History</button>
-                    <button onClick={() => setHistoryModalEntry(undefined)} className='btn btn-chaos ms-2'>Close</button>
                 </div>
                 
             </Modal>
