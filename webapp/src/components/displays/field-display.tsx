@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
-import { FieldCanvas } from './shared/field-component';
+import { FieldCanvas } from '../shared/field-component';
 
 type FieldDisplayProps = {
     entry: NTEntry | undefined,

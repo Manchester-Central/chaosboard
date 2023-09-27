@@ -1,44 +1,13 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
+import { AutoStep } from '../../data/auto-step';
+import gameData from '../../data/game-specific-data';
 import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
-import { FieldCanvas } from './shared/field-component';
+import { AutoEditor } from '../shared/auto-editor';
+import { FieldCanvas } from '../shared/field-component';
 import { SimpleDisplay } from './simple-text-display';
-
-const ScoreXMeters = 1.855;
-const ScoreAngle = 180;
-const drivePoses: Record<string, {xMeters: number, yMeters: number, rotationDegrees: number}> = {};
-const addDrivePose = (name: string, xMeters: number, yMeters: number, rotationDegrees: number) => drivePoses[name] = {xMeters, yMeters, rotationDegrees};
-addDrivePose("Score1", ScoreXMeters, 7.503, ScoreAngle);
-addDrivePose("Score2", ScoreXMeters, 6.932, ScoreAngle);
-addDrivePose("Score3", ScoreXMeters, 6.386, ScoreAngle);
-addDrivePose("Score4", ScoreXMeters, 5.827, ScoreAngle);
-addDrivePose("Score5", ScoreXMeters, 5.268, ScoreAngle);
-addDrivePose("Score6", ScoreXMeters, 4.709, ScoreAngle);
-addDrivePose("Score7", ScoreXMeters, 4.151, ScoreAngle);
-addDrivePose("Score8", ScoreXMeters, 3.592, ScoreAngle);
-addDrivePose("Score9", ScoreXMeters, 3.033, ScoreAngle);
-
-class AutoStep {
-    command: string;
-    params: Record<string, string>;
-
-    constructor(line: string){
-        const lineSplit = line.split('?');
-        this.command = lineSplit[0];
-        const params = new URLSearchParams(lineSplit[1] ?? '');
-        this.params = [...params.entries()].reduce((newObject, currentValue) => {
-            newObject[currentValue[0]] = currentValue[1];
-            return newObject;
-        }, {} as Record<string, string>);
-    }
-
-    getParam(key: string) {
-        const foundKey = Object.keys(this.params).find(otherKey => otherKey.toLowerCase() === key.toLowerCase());
-        return foundKey ? this.params[foundKey] : null;
-    }
-}
 
 type AutoStepsProps = {
     entry: NTEntry | undefined,
@@ -47,8 +16,16 @@ type AutoStepsProps = {
 export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
 
     let [value, updateValue] = useNtEntry(entry);
+    let [autoSteps, setAutoSteps] = useState<AutoStep[]>([]);
     let [isEditing, setIsEditing] = useState(false);
-    const inputFile = useRef<HTMLInputElement>(null) 
+    const inputFile = useRef<HTMLInputElement>(null);
+    const drivePoses = gameData.drivePoses;
+
+    useEffect(() => {
+        if (value) {
+            setAutoSteps(value.map((line: string) => new AutoStep(line)));
+        }
+    }, [value]);
 
     if(!Array.isArray(value)) {
         return <SimpleDisplay entry={entry}></SimpleDisplay>;
@@ -82,10 +59,10 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         reader.onload = async (e: any) => { 
           const text = (e.target.result) as string;
           const lines = text.split('\n').map(s => s.trim());
-          lines.unshift(`File name: ${file.name}`);
+          //lines.unshift(`File name: ${file.name}`);
           updateValue(lines, historyManager);
         };
-        reader.readAsText(event.target.files[0])
+        reader.readAsText(file)
     }
 
     const getExtraDisplays = (step: AutoStep) => {
@@ -113,9 +90,9 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
 
     return (
         <>
-            <Modal isOpen={isEditing} style={modalStyle}>
+            <Modal isOpen={isEditing} style={modalStyle} >
                 <button className='btn btn-chaos' onClick={() => setIsEditing(false)}>Close</button>
-                {value.map(line => <p>{line}</p>)}
+                <AutoEditor autoSteps={autoSteps}/>
             </Modal>
             <div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
                 <button className='btn btn-chaos' onClick={onUploadButtonClick} style={{flexGrow: 1}}>Upload Auto</button>
@@ -123,14 +100,13 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
             </div>
             <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={onChangeFile} onClick={(event)=> (event.target as HTMLInputElement).value = ''}/>
             <ul className='list-group list-group-flush'>
-                {value.map(value => {
-                    const step = new AutoStep(value);
+                {autoSteps.map(step => {
                     const params = Object.keys(step.params).map((key) => {
                         const paramValue = step.params[key];
                         return <span className={`badge ${getStyle(key)} me-1`}><span style={{fontSize: '0.7em'}}>{key}:</span> {paramValue}</span>
                     })
                     return <li className='list-group-item p-2'>
-                        <h5 className='mb-0'>{step.command} {params} {getExtraDisplays(step)}</h5>
+                        <h5 className='mb-0'><strong>{step.command}</strong> <br/> {params} {getExtraDisplays(step)}</h5>
                         
                     </li>;
                 })}

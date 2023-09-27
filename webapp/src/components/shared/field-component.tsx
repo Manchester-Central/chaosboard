@@ -1,4 +1,5 @@
 import { createRef, useState, CSSProperties, useEffect } from "react";
+import gameData from "../../data/game-specific-data";
 
 type CanvasProps = {
     xMeters: number,
@@ -6,9 +7,9 @@ type CanvasProps = {
     rotationDegrees: number,
 };
 export function FieldCanvas({ xMeters, yMeters, rotationDegrees }: CanvasProps) {
-    const fieldWidthMeters = 16.522;
-    const robotWidthMeters = 0.851;
-    const robotHeightMeters = 0.863;
+    const fieldWidthMeters = gameData.fieldWidthMeters;
+    const robotWidthMeters = gameData.robotWidthMeters;
+    const robotHeightMeters = gameData.robotHeightMeters;
     let divRef = createRef<HTMLDivElement>();
 
     let [robotPosition, setRobotPosition] = useState<CSSProperties>({});
@@ -37,7 +38,7 @@ export function FieldCanvas({ xMeters, yMeters, rotationDegrees }: CanvasProps) 
             left: metersToPixel(xMeters) - metersToPixel(robotHeightMeters / 2),
             width: metersToPixel(robotWidthMeters),
             height: metersToPixel(robotHeightMeters),
-            backgroundImage: 'url(/robot-image.png)',
+            backgroundImage: `url(${gameData.robotImagePath})`,
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             transform: `rotate(${360 - rotationDegrees}deg)`,
@@ -49,8 +50,7 @@ export function FieldCanvas({ xMeters, yMeters, rotationDegrees }: CanvasProps) 
     return <>
         <div style={{position: 'relative'}} ref={divRef}>
             <div style={robotPosition}></div>
-            <img src="/2023-cad-field.png" style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
+            <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
         </div>
-        {/* {value?.join(", ")} */}
     </>;
 }
