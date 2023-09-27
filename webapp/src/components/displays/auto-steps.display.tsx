@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { AutoStep } from '../../data/auto-step';
-import gameData from '../../data/game-specific-data';
+import { gameData } from '../../data/game-specific-data';
 import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
@@ -34,6 +34,9 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
     const getStyle = (key: string) => {
         switch(key.toLowerCase()) {
             case 'drivepose':
+            case 'x':
+            case 'y':
+            case 'angle':
                 return 'text-bg-primary';
             case 'armpose':
                 return 'text-bg-success';
@@ -66,18 +69,9 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
     }
 
     const getExtraDisplays = (step: AutoStep) => {
-        let xMeters = step.getParam('x') ?? 0;
-        let yMeters = step.getParam('y') ?? 0;
-        let rotationDegrees = step.getParam('angle') ?? 0;
-        const drivePose = step.getParam("drivepose");
+        const drivePose = step.assumeDrivePose();
         if (drivePose) {
-            const pose = drivePoses[drivePose];
-            xMeters = pose?.xMeters ?? xMeters;
-            yMeters = pose.yMeters ?? yMeters;
-            rotationDegrees = pose?.rotationDegrees ?? rotationDegrees;
-        }
-        if (xMeters || yMeters || rotationDegrees) {
-            return <><div style={{marginTop: 5}}></div><FieldCanvas xMeters={+xMeters} yMeters={+yMeters} rotationDegrees={+rotationDegrees} /></>
+            return <><div style={{marginTop: 5}}></div><FieldCanvas drivePose={drivePose} /></>
         }
         return <></>
     }

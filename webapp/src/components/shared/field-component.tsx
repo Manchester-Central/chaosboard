@@ -1,12 +1,11 @@
 import { createRef, useState, CSSProperties, useEffect } from "react";
-import gameData from "../../data/game-specific-data";
+import { DrivePose } from "../../data/drive-pose";
+import { gameData } from "../../data/game-specific-data";
 
 type CanvasProps = {
-    xMeters: number,
-    yMeters: number,
-    rotationDegrees: number,
+    drivePose: DrivePose | null,
 };
-export function FieldCanvas({ xMeters, yMeters, rotationDegrees }: CanvasProps) {
+export function FieldCanvas({ drivePose }: CanvasProps) {
     const fieldWidthMeters = gameData.fieldWidthMeters;
     const robotWidthMeters = gameData.robotWidthMeters;
     const robotHeightMeters = gameData.robotHeightMeters;
@@ -32,24 +31,27 @@ export function FieldCanvas({ xMeters, yMeters, rotationDegrees }: CanvasProps) 
       }, [divRef])
 
     useEffect(() => {
+        if (!drivePose) {
+            return;
+        }
         const newState = {
             position: 'absolute',
-            bottom: metersToPixel(yMeters) - metersToPixel(robotWidthMeters / 2),
-            left: metersToPixel(xMeters) - metersToPixel(robotHeightMeters / 2),
+            bottom: metersToPixel(drivePose.yMeters) - metersToPixel(robotWidthMeters / 2),
+            left: metersToPixel(drivePose.xMeters) - metersToPixel(robotHeightMeters / 2),
             width: metersToPixel(robotWidthMeters),
             height: metersToPixel(robotHeightMeters),
             backgroundImage: `url(${gameData.robotImagePath})`,
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
-            transform: `rotate(${360 - rotationDegrees}deg)`,
+            transform: `rotate(${360 - drivePose.rotationDegrees}deg)`,
             zIndex: 50
         } as CSSProperties;
         setRobotPosition(newState);
-    }, [xMeters, yMeters, rotationDegrees, metersToPixelsRatio])
+    }, [drivePose, metersToPixelsRatio])
 
     return <>
         <div style={{position: 'relative'}} ref={divRef}>
-            <div style={robotPosition}></div>
+            <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`}></div>
             <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
         </div>
     </>;
