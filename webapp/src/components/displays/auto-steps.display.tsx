@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import Modal from 'react-modal';
 import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
@@ -46,6 +47,7 @@ type AutoStepsProps = {
 export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
 
     let [value, updateValue] = useNtEntry(entry);
+    let [isEditing, setIsEditing] = useState(false);
     const inputFile = useRef<HTMLInputElement>(null) 
 
     if(!Array.isArray(value)) {
@@ -63,9 +65,13 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         }
     }
 
-    const onButtonClick = () => {
-    // `current` points to the mounted file input element
+    const onUploadButtonClick = () => {
+        // `current` points to the mounted file input element
         inputFile.current?.click();
+    };
+
+    const onEditButtonClick = () => {
+        setIsEditing(true);
     };
 
     const onChangeFile = (event: any)  => {
@@ -75,7 +81,9 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         const reader = new FileReader()
         reader.onload = async (e: any) => { 
           const text = (e.target.result) as string;
-          updateValue(text.split('\n').map(s => s.trim()), historyManager)
+          const lines = text.split('\n').map(s => s.trim());
+          lines.unshift(`File name: ${file.name}`);
+          updateValue(lines, historyManager);
         };
         reader.readAsText(event.target.files[0])
     }
@@ -97,10 +105,21 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         return <></>
     }
 
+    const modalStyle: Modal.Styles = {
+        overlay: {
+            zIndex: 99999
+        }
+    }
+
     return (
         <>
-            <div className='d-grid gap-2'>
-                <button className='btn btn-chaos' onClick={onButtonClick}>Upload Auto</button>
+            <Modal isOpen={isEditing} style={modalStyle}>
+                <button className='btn btn-chaos' onClick={() => setIsEditing(false)}>Close</button>
+                {value.map(line => <p>{line}</p>)}
+            </Modal>
+            <div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
+                <button className='btn btn-chaos' onClick={onUploadButtonClick} style={{flexGrow: 1}}>Upload Auto</button>
+                <button className='btn btn-primary' onClick={onEditButtonClick} style={{flexGrow: 1}}>Edit Auto</button>
             </div>
             <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={onChangeFile} onClick={(event)=> (event.target as HTMLInputElement).value = ''}/>
             <ul className='list-group list-group-flush'>
