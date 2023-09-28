@@ -91,8 +91,7 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
     return (
         <>
             <Modal isOpen={isEditing} style={modalStyle} >
-                <button className='btn btn-chaos' onClick={() => setIsEditing(false)}>Close</button>
-                <AutoEditor initialAutoSteps={autoSteps} onUpdate={onEditFinished}/>
+                <AutoEditor initialAutoSteps={autoSteps} onUpdate={onEditFinished} onCancel={() => setIsEditing(false)}/>
             </Modal>
             <div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
                 <button className='btn btn-chaos' onClick={onUploadButtonClick} style={{flexGrow: 1}}>Upload Auto</button>

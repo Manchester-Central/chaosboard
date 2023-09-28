@@ -5,6 +5,8 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 import { AutoCommand, AutoCommandArgument } from "../../data/auto-command";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const newParamRow = (key: string, value: string) => ({id: uuidv4(), key, value});
 
@@ -38,7 +40,7 @@ function AutoEditParamLine({ id, autoCommand, initialKey, initialValue, onUpdate
         onUpdated(id, key, value);
     }, [key, value]);
 
-    return <div style={{display: 'flex', gap: 5, marginTop: 5, marginBottom: 5}}>
+    return <div style={{display: 'flex', gap: 5, marginTop: 5}}>
         <Typeahead
             id={id + "key"}
             labelKey="argName"
@@ -63,8 +65,9 @@ function AutoEditParamLine({ id, autoCommand, initialKey, initialValue, onUpdate
 type AutoEditLineProps = {
     initialAutoStep: AutoStep,
     onStepUpdated: (step: AutoStep) => void,
+    onStepDeleted: (step: AutoStep) => void,
 };
-function AutoEditLine({ initialAutoStep, onStepUpdated }: AutoEditLineProps) {
+function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted }: AutoEditLineProps) {
     const [autoStep, setAutoStep] = useState(initialAutoStep);
 
     const [knownCommand, setKnownCommand] = useState(getKnownCommand(autoStep.command));
@@ -113,32 +116,40 @@ function AutoEditLine({ initialAutoStep, onStepUpdated }: AutoEditLineProps) {
     const drivePose = autoStep.assumeDrivePose();
     const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose} />: <></>;
 
-    return <>
-        <Typeahead
-            id={autoStep.id + "command"}
-            labelKey="commandName"
-            onChange={options => updateCommandName((options[0] as AutoCommand)?.commandName)}
-            options={gameData.autoCommands}
-            placeholder="Choose a state..."
-            defaultInputValue={autoStep.command}
-            onInputChange={newName => updateCommandName(newName)}
-        />
-        <div style={{marginLeft: 100}}>
-            {args.map(({id, key, value}) => {
-                return <div key={id+"line"}><AutoEditParamLine id={id} autoCommand={knownCommand} initialKey={key} initialValue={value} onUpdated={(updatedId, newKey, newValue) => updateArg(updatedId, newKey, newValue)}/></div>
-            })}
-            <button className="btn btn-secondary mb-2" onClick={addParam}>Add Param</button>
-            {fieldDisplay}
-            <pre className="mt-2">{autoStep.rawLine}</pre>
+    return <div style={{display: 'flex', gap: 10}}>
+        <div>
+            <button className="btn btn-danger" onClick={() => onStepDeleted(autoStep)}><FontAwesomeIcon icon={faTrash} /></button>
         </div>
-    </>;
+        <div style={{minWidth: 500, width: 500}}>
+            <Typeahead
+                id={autoStep.id + "command"}
+                labelKey="commandName"
+                onChange={options => updateCommandName((options[0] as AutoCommand)?.commandName)}
+                options={gameData.autoCommands}
+                placeholder="Choose a state..."
+                defaultInputValue={autoStep.command}
+                onInputChange={newName => updateCommandName(newName)}
+            />
+            <div style={{marginLeft: 100}}>
+                {args.map(({id, key, value}) => {
+                    return <div key={id+"line"}><AutoEditParamLine id={id} autoCommand={knownCommand} initialKey={key} initialValue={value} onUpdated={(updatedId, newKey, newValue) => updateArg(updatedId, newKey, newValue)}/></div>
+                })}
+                <button className="btn btn-secondary mb-2 mt-2" onClick={addParam}><FontAwesomeIcon icon={faPlus} /> Param</button>
+            </div>
+        </div>
+        <div style={{flexGrow: 2}}>
+            {fieldDisplay}
+            <pre className="mt-2" style={{width: '100%'}}>{autoStep.rawLine}</pre>
+        </div>
+    </div>;
 }
 
 type AutoEditorProps = {
     initialAutoSteps: AutoStep[],
     onUpdate: (newSteps: AutoStep[]) => void,
+    onCancel: () => void,
 };
-export function AutoEditor({ initialAutoSteps, onUpdate }: AutoEditorProps) {
+export function AutoEditor({ initialAutoSteps, onUpdate, onCancel }: AutoEditorProps) {
     const [autoSteps, setAutoSteps] = useState(initialAutoSteps);
 
     const replaceStep = (oldStep: AutoStep, newStep: AutoStep) => {
@@ -185,8 +196,7 @@ export function AutoEditor({ initialAutoSteps, onUpdate }: AutoEditorProps) {
         <h1>Auto Step Builder</h1>
         {autoSteps.map((step) => {
             return <div key={step.id+"edit"}>
-                <AutoEditLine initialAutoStep={step} onStepUpdated={newStep => replaceStep(step, newStep)}/>
-                <button className="btn btn-danger" onClick={() => removeStep(step)}>Remove Step</button>
+                <AutoEditLine initialAutoStep={step} onStepUpdated={newStep => replaceStep(step, newStep)} onStepDeleted={() => removeStep(step)}/>
                 <hr />
             </div>
         })}
@@ -201,6 +211,9 @@ export function AutoEditor({ initialAutoSteps, onUpdate }: AutoEditorProps) {
             </div>
         })}
 
-        <button className="btn btn-primary" onClick={save}>Update</button>
+        <div style={{display: 'flex', gap: 5}}>
+            <button className="btn btn-primary" onClick={save}>Update</button>
+            <button className='btn btn-danger' onClick={() => onCancel()}>Cancel</button>
+        </div>
     </>;
 }
