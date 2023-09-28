@@ -62,8 +62,9 @@ function AutoEditParamLine({ id, autoCommand, initialKey, initialValue, onUpdate
 
 type AutoEditLineProps = {
     initialAutoStep: AutoStep,
+    onStepUpdated: (step: AutoStep) => void,
 };
-function AutoEditLine({ initialAutoStep }: AutoEditLineProps) {
+function AutoEditLine({ initialAutoStep, onStepUpdated }: AutoEditLineProps) {
     const [autoStep, setAutoStep] = useState(initialAutoStep);
 
     const [knownCommand, setKnownCommand] = useState(getKnownCommand(autoStep.command));
@@ -84,8 +85,13 @@ function AutoEditLine({ initialAutoStep }: AutoEditLineProps) {
         }
     }, [args]);
 
+    // Handles a weird bug with arg setting, so delaying until after the original update
+    useEffect(() => {
+        onStepUpdated(autoStep);
+    }, [autoStep]);
+
     const updateCommandName = (newCommandName: string) => {
-        const newStep = AutoStep.createNewStep(newCommandName ?? '', {});
+        const newStep = AutoStep.createNewStep(newCommandName ?? '', {}, autoStep.id);
         setAutoStep(newStep);
         const newKnownCommand = getKnownCommand(newStep.command);
         setKnownCommand(newKnownCommand);
@@ -100,7 +106,7 @@ function AutoEditLine({ initialAutoStep }: AutoEditLineProps) {
         arg.key = newKey ?? '';
         arg.value = newValue ?? '';
         const params = args.reduce((params, arg) => { params[arg.key] = arg.value ?? ''; return params; }, {} as Record<string, string>);
-        const newStep = AutoStep.createNewStep(autoStep.command ?? '', params);
+        const newStep = AutoStep.createNewStep(autoStep.command ?? '', params, autoStep.id);
         setAutoStep(newStep);
     }
     
@@ -109,7 +115,7 @@ function AutoEditLine({ initialAutoStep }: AutoEditLineProps) {
 
     return <>
         <Typeahead
-            id={autoStep.command}
+            id={autoStep.id + "command"}
             labelKey="commandName"
             onChange={options => updateCommandName((options[0] as AutoCommand)?.commandName)}
             options={gameData.autoCommands}
@@ -119,7 +125,7 @@ function AutoEditLine({ initialAutoStep }: AutoEditLineProps) {
         />
         <div style={{marginLeft: 100}}>
             {args.map(({id, key, value}) => {
-                return <AutoEditParamLine id={id} autoCommand={knownCommand} initialKey={key} initialValue={value} onUpdated={(updatedId, newKey, newValue) => updateArg(updatedId, newKey, newValue)}/>
+                return <div key={id+"line"}><AutoEditParamLine id={id} autoCommand={knownCommand} initialKey={key} initialValue={value} onUpdated={(updatedId, newKey, newValue) => updateArg(updatedId, newKey, newValue)}/></div>
             })}
             <button className="btn btn-secondary mb-2" onClick={addParam}>Add Param</button>
             {fieldDisplay}
@@ -129,16 +135,72 @@ function AutoEditLine({ initialAutoStep }: AutoEditLineProps) {
 }
 
 type AutoEditorProps = {
-    autoSteps: AutoStep[],
+    initialAutoSteps: AutoStep[],
+    onUpdate: (newSteps: AutoStep[]) => void,
 };
-export function AutoEditor({ autoSteps }: AutoEditorProps) {
+export function AutoEditor({ initialAutoSteps, onUpdate }: AutoEditorProps) {
+    const [autoSteps, setAutoSteps] = useState(initialAutoSteps);
+
+    const replaceStep = (oldStep: AutoStep, newStep: AutoStep) => {
+        const index = autoSteps.indexOf(oldStep);
+        autoSteps.splice(index, 1, newStep);
+        setAutoSteps(autoSteps.slice());
+    }
+
+    const addStep = () => {
+        setAutoSteps(autoSteps.concat([new AutoStep('')]));
+    }
+
+    const removeStep = (stepToRemove: AutoStep) => {
+        const newSteps = autoSteps.filter(step => step !== stepToRemove);
+        setAutoSteps(newSteps);
+    }
+
+    async function saveFile() {
+        const content = autoSteps.map(step => `${step.rawLine}`).join('\r\n');
+        var blob = new Blob([content], {
+          type: 'text/plain'
+        });
+        const opts = {
+            types: [
+                {
+                    description: "Text file",
+                    accept: { "text/plain": [".txt"] },
+                },
+            ],
+        };
+        const fileHandle = await (window as any).showSaveFilePicker(opts);
+        const writer = await fileHandle.createWritable();
+        await writer.write({type: "write", data: blob, size: blob.size});
+        await writer.close();
+    }
+
+    const save = () => {
+        saveFile().then(() => {
+            onUpdate(autoSteps);
+        });
+    }
+
     return <>
         <h1>Auto Step Builder</h1>
-        {autoSteps.map(step => {
-            return <>
-                <AutoEditLine initialAutoStep={step}/>
+        {autoSteps.map((step) => {
+            return <div key={step.id+"edit"}>
+                <AutoEditLine initialAutoStep={step} onStepUpdated={newStep => replaceStep(step, newStep)}/>
+                <button className="btn btn-danger" onClick={() => removeStep(step)}>Remove Step</button>
                 <hr />
-            </>
+            </div>
         })}
+        <button className="btn btn-secondary" onClick={addStep}>Add Step</button>
+
+        <hr />
+        
+        <h1>Result</h1>
+        {autoSteps.map((step) => {
+            return <div key={step.id+"list"}>
+                <pre>{step.rawLine}</pre>
+            </div>
+        })}
+
+        <button className="btn btn-primary" onClick={save}>Update</button>
     </>;
 }

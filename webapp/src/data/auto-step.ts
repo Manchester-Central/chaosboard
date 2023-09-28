@@ -1,7 +1,9 @@
+import { v4 as uuid } from "uuid";
 import { DrivePose } from "./drive-pose";
 import { gameData } from "./game-specific-data";
 
 export class AutoStep {
+    id = uuid();
     command: string;
     params: Record<string, string>;
 
@@ -53,8 +55,10 @@ export class AutoStep {
         return `${commandName}?${params.toString()}`;
     }
 
-    static createNewStep(commandName: string, values: Record<string, string>) {
+    static createNewStep(commandName: string, values: Record<string, string>, id: string) {
         const autoString = AutoStep.toAutoString(commandName, values);
-        return new AutoStep(autoString);
+        const step = new AutoStep(autoString);
+        step.id = id;
+        return step;
     }
 }

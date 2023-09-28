@@ -68,6 +68,12 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         reader.readAsText(file)
     }
 
+    const onEditFinished = (newSteps: AutoStep[]) => {
+        const lines = newSteps.map(s => s.rawLine);
+        updateValue(lines, historyManager);
+        setIsEditing(false);
+    }
+
     const getExtraDisplays = (step: AutoStep) => {
         const drivePose = step.assumeDrivePose();
         if (drivePose) {
@@ -86,7 +92,7 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         <>
             <Modal isOpen={isEditing} style={modalStyle} >
                 <button className='btn btn-chaos' onClick={() => setIsEditing(false)}>Close</button>
-                <AutoEditor autoSteps={autoSteps}/>
+                <AutoEditor initialAutoSteps={autoSteps} onUpdate={onEditFinished}/>
             </Modal>
             <div style={{display: 'flex', flexDirection: 'row', gap: 10}}>
                 <button className='btn btn-chaos' onClick={onUploadButtonClick} style={{flexGrow: 1}}>Upload Auto</button>
