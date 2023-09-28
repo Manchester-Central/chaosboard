@@ -33,7 +33,7 @@ export class AutoStep {
         if (drivePose) {
             const pose = gameData.drivePoses.getPose(drivePose);
             xMeters = pose?.xMeters ?? xMeters;
-            yMeters = pose.yMeters ?? yMeters;
+            yMeters = pose?.yMeters ?? yMeters;
             rotationDegrees = pose?.rotationDegrees ?? rotationDegrees;
             name = pose?.name ?? name;
         }
@@ -41,5 +41,20 @@ export class AutoStep {
             return new DrivePose(name, +xMeters, +yMeters, +rotationDegrees);
         }
         return null;
+    }
+
+    static toAutoString(commandName: string, values: Record<string, string>) {
+        const params = new URLSearchParams();
+        Object.entries(values).map(([key, value]) => {
+            if (key && value) {
+                params.append(key, value);
+            }
+        });
+        return `${commandName}?${params.toString()}`;
+    }
+
+    static createNewStep(commandName: string, values: Record<string, string>) {
+        const autoString = AutoStep.toAutoString(commandName, values);
+        return new AutoStep(autoString);
     }
 }

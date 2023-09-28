@@ -4,7 +4,7 @@ enum ArgType {
     STRING, BOOLEAN, NUMBER, DRIVE_POSE, CUSTOM
 }
 
-class AutoCommandArgument {
+export class AutoCommandArgument {
     readonly possibleValues: string[] = [];
 
     constructor(
@@ -100,7 +100,7 @@ export function get2023AutoCommands() {
         new AutoCommand("driveAndGrip", get2023DriveArgs()),
         new AutoCommand("stow"),
         new AutoCommand("score", get2023ArmArgs()),
-        new AutoCommand("driveUntilTipped", [new AutoCommandArgument("speed", ArgType.NUMBER), new AutoCommandArgument("minAngleDegrees", ArgType.NUMBER)]),
+        new AutoCommand("driveUntilTipped", [new AutoCommandArgument("Speed", ArgType.NUMBER), new AutoCommandArgument("MinAngleDegrees", ArgType.NUMBER)]),
         new AutoCommand("recalibrateArm"),
         new AutoCommand("driveAndIntake", get2023DriveAndArmArgs()),
         new AutoCommand("wait"),
