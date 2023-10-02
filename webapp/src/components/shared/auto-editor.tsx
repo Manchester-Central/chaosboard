@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPlus, faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { DrivePose } from "../../data/drive-pose";
 
 const newParamRow = (key: string, value: string) => ({id: uuidv4(), key, value});
 
@@ -113,9 +114,17 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted, onStepMov
         const newStep = AutoStep.createNewStep(autoStep.command ?? '', params, autoStep.id);
         setAutoStep(newStep);
     }
+
+    const onDrivePoseManuallyUpdated = (pose: DrivePose) => {
+        const filteredArgs = args.filter(arg => !['drivepose', 'x', 'y', 'angle'].includes(arg.key?.toLowerCase()));
+        const xArg = newParamRow("X", pose.xMeters?.toString());
+        const yArg = newParamRow("Y", pose.yMeters?.toString());
+        const angleArg = newParamRow("Angle", pose.rotationDegrees?.toString());
+        setArgs([xArg, yArg, angleArg, ...filteredArgs]);
+    }
     
     const drivePose = autoStep.assumeDrivePose();
-    const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose} />: <></>;
+    const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose} onPoseManuallyMoved={onDrivePoseManuallyUpdated}/>: <></>;
 
     return <div style={{display: 'flex', gap: 10}}>
         <div>

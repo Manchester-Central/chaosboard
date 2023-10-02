@@ -4,8 +4,9 @@ import { gameData } from "../../data/game-specific-data";
 
 type CanvasProps = {
     drivePose: DrivePose | null,
+    onPoseManuallyMoved?: (pose: DrivePose) => void
 };
-export function FieldCanvas({ drivePose }: CanvasProps) {
+export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
     const fieldWidthMeters = gameData.fieldWidthMeters;
     const robotWidthMeters = gameData.robotWidthMeters;
     const robotHeightMeters = gameData.robotHeightMeters;
@@ -15,6 +16,9 @@ export function FieldCanvas({ drivePose }: CanvasProps) {
     let [metersToPixelsRatio, setMetersToPixelsRatio] = useState<number>(1);
     const metersToPixel = (meters: number) => {
         return meters * metersToPixelsRatio;
+    }
+    const pixelsToMeters = (pixels: number) => {
+        return pixels / metersToPixelsRatio;
     }
 
     useEffect(() => {
@@ -44,15 +48,24 @@ export function FieldCanvas({ drivePose }: CanvasProps) {
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             transform: `rotate(${360 - drivePose.rotationDegrees}deg)`,
-            zIndex: 50
+            zIndex: 50,
+            cursor: !!onPoseManuallyMoved ? 'pointer' : 'default',
         } as CSSProperties;
         setRobotPosition(newState);
     }, [drivePose, metersToPixelsRatio])
 
+    const onRobotDropped = (event: React.DragEvent<HTMLDivElement>) => {
+        const newXPixels = isFinite(event.nativeEvent.offsetX) ? event.nativeEvent.offsetX : 0;
+        const newYPixels = isFinite(event.nativeEvent.offsetY) ? event.nativeEvent.offsetY : 0;
+        const newXMeters = +pixelsToMeters(newXPixels).toFixed(3);
+        const newYMeters = +pixelsToMeters((event.target as HTMLImageElement).height - newYPixels).toFixed(3);
+        onPoseManuallyMoved?.(new DrivePose("Manual Pose", newXMeters, newYMeters, drivePose?.rotationDegrees ?? 0));
+    }
+
     return <>
-        <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef}>
-            <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`}></div>
+        <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef} onDragOver={event => event?.preventDefault()} onDrop={onRobotDropped}>
             <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
+            <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={!!onPoseManuallyMoved} onDrag={event => event?.preventDefault()}></div>
         </div>
     </>;
 }
