@@ -6,7 +6,7 @@ import { AutoCommand, AutoCommandArgument } from "../../data/auto-command";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 const newParamRow = (key: string, value: string) => ({id: uuidv4(), key, value});
 
@@ -64,10 +64,11 @@ function AutoEditParamLine({ id, autoCommand, initialKey, initialValue, onUpdate
 
 type AutoEditLineProps = {
     initialAutoStep: AutoStep,
-    onStepUpdated: (step: AutoStep) => void,
-    onStepDeleted: (step: AutoStep) => void,
+    onStepUpdated: (newStep: AutoStep) => void,
+    onStepDeleted: () => void,
+    onStepMoved: (incrementAmount: number) => void,
 };
-function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted }: AutoEditLineProps) {
+function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted, onStepMoved }: AutoEditLineProps) {
     const [autoStep, setAutoStep] = useState(initialAutoStep);
 
     const [knownCommand, setKnownCommand] = useState(getKnownCommand(autoStep.command));
@@ -117,9 +118,6 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted }: AutoEdi
     const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose} />: <></>;
 
     return <div style={{display: 'flex', gap: 10}}>
-        <div>
-            <button className="btn btn-danger" onClick={() => onStepDeleted(autoStep)}><FontAwesomeIcon icon={faTrash} /></button>
-        </div>
         <div style={{minWidth: 500, width: 500}}>
             <Typeahead
                 id={autoStep.id + "command"}
@@ -141,6 +139,15 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted }: AutoEdi
             {fieldDisplay}
             <pre className="mt-2" style={{width: '100%'}}>{autoStep.rawLine}</pre>
         </div>
+        <div>
+            <button className="btn btn-secondary" onClick={() => onStepMoved(-1)}><FontAwesomeIcon icon={faAngleUp} /></button>
+        </div>
+        <div>
+            <button className="btn btn-secondary" onClick={() => onStepMoved(1)}><FontAwesomeIcon icon={faAngleDown} /></button>
+        </div>
+        <div>
+            <button className="btn btn-danger" onClick={() => onStepDeleted()}><FontAwesomeIcon icon={faTrash} /></button>
+        </div>
     </div>;
 }
 
@@ -160,6 +167,19 @@ export function AutoEditor({ initialAutoSteps, onUpdate, onCancel }: AutoEditorP
 
     const addStep = () => {
         setAutoSteps(autoSteps.concat([new AutoStep('')]));
+    }
+
+    const moveStep = (step: AutoStep, incrementAmount: number) => {
+        const newSteps = autoSteps.slice();
+        const start = newSteps.indexOf(step);
+        const target = start + incrementAmount;
+        if (target < 0 || target > newSteps.length - 1) {
+            return;
+        }
+        const stepToReplace = newSteps[target];
+        newSteps[target] = step;
+        newSteps[start] = stepToReplace;
+        setAutoSteps(newSteps);
     }
 
     const removeStep = (stepToRemove: AutoStep) => {
@@ -196,7 +216,12 @@ export function AutoEditor({ initialAutoSteps, onUpdate, onCancel }: AutoEditorP
         <h1>Auto Step Builder</h1>
         {autoSteps.map((step) => {
             return <div key={step.id+"edit"}>
-                <AutoEditLine initialAutoStep={step} onStepUpdated={newStep => replaceStep(step, newStep)} onStepDeleted={() => removeStep(step)}/>
+                <AutoEditLine
+                    initialAutoStep={step}
+                    onStepUpdated={newStep => replaceStep(step, newStep)}
+                    onStepDeleted={() => removeStep(step)}
+                    onStepMoved={incerementAmount => moveStep(step, incerementAmount)}
+                />
                 <hr />
             </div>
         })}
