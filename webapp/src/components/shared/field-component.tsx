@@ -62,8 +62,13 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
         onPoseManuallyMoved?.(new DrivePose("Manual Pose", newXMeters, newYMeters, drivePose?.rotationDegrees ?? 0));
     }
 
+    const onRobotDragged = (event: React.DragEvent<HTMLDivElement>) => {
+        setRobotPosition({...robotPosition, visibility: "hidden"});
+        return event.preventDefault();
+    }
+
     return <>
-        <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef} onDragOver={event => event?.preventDefault()} onDrop={onRobotDropped}>
+        <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef} onDragOver={onRobotDragged} onDrop={onRobotDropped}>
             <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={!!onPoseManuallyMoved} onDrag={event => event?.preventDefault()}></div>
         </div>
