@@ -82,7 +82,10 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
 
     const modalStyle: Modal.Styles = {
         overlay: {
-            zIndex: 99999
+            zIndex: 99999,
+        },
+        content: {
+           // backgroundColor: "#f8eee7"
         }
     }
 

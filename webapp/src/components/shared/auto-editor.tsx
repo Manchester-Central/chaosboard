@@ -118,6 +118,15 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted, onStepMov
     const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose} />: <></>;
 
     return <div style={{display: 'flex', gap: 10}}>
+        <div>
+            <button className="btn btn-light" onClick={() => onStepMoved(-1)}><FontAwesomeIcon icon={faAngleUp} /></button>
+        </div>
+        <div>
+            <button className="btn btn-light" onClick={() => onStepMoved(1)}><FontAwesomeIcon icon={faAngleDown} /></button>
+        </div>
+        <div>
+            <button className="btn btn-warning" onClick={() => onStepDeleted()}><FontAwesomeIcon icon={faTrash} /></button>
+        </div>
         <div style={{minWidth: 500, width: 500}}>
             <Typeahead
                 id={autoStep.id + "command"}
@@ -132,21 +141,12 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted, onStepMov
                 {args.map(({id, key, value}) => {
                     return <div key={id+"line"}><AutoEditParamLine id={id} autoCommand={knownCommand} initialKey={key} initialValue={value} onUpdated={(updatedId, newKey, newValue) => updateArg(updatedId, newKey, newValue)}/></div>
                 })}
-                <button className="btn btn-secondary mb-2 mt-2" onClick={addParam}><FontAwesomeIcon icon={faPlus} /> Param</button>
+                <button className="btn btn-light mb-2 mt-2" onClick={addParam}><FontAwesomeIcon icon={faPlus} /> Param</button>
             </div>
         </div>
         <div style={{flexGrow: 2}}>
             {fieldDisplay}
             <pre className="mt-2" style={{width: '100%'}}>{autoStep.rawLine}</pre>
-        </div>
-        <div>
-            <button className="btn btn-secondary" onClick={() => onStepMoved(-1)}><FontAwesomeIcon icon={faAngleUp} /></button>
-        </div>
-        <div>
-            <button className="btn btn-secondary" onClick={() => onStepMoved(1)}><FontAwesomeIcon icon={faAngleDown} /></button>
-        </div>
-        <div>
-            <button className="btn btn-danger" onClick={() => onStepDeleted()}><FontAwesomeIcon icon={faTrash} /></button>
         </div>
     </div>;
 }
@@ -165,8 +165,12 @@ export function AutoEditor({ initialAutoSteps, onUpdate, onCancel }: AutoEditorP
         setAutoSteps(autoSteps.slice());
     }
 
-    const addStep = () => {
-        setAutoSteps(autoSteps.concat([new AutoStep('')]));
+    const addStep = (stepToAppendTo: AutoStep) => {
+        const startIndex = autoSteps.indexOf(stepToAppendTo);
+        const stepsBefore = autoSteps.slice(0, startIndex + 1);
+        const newStep = new AutoStep('');
+        const stepsAfter = autoSteps.slice(startIndex + 1);
+        setAutoSteps([...stepsBefore, newStep, ...stepsAfter]);
     }
 
     const moveStep = (step: AutoStep, incrementAmount: number) => {
@@ -222,10 +226,13 @@ export function AutoEditor({ initialAutoSteps, onUpdate, onCancel }: AutoEditorP
                     onStepDeleted={() => removeStep(step)}
                     onStepMoved={incerementAmount => moveStep(step, incerementAmount)}
                 />
-                <hr />
+                <div style={{display: 'flex', gap: 10, marginBottom: 5}}>
+                    <hr style={{flexGrow: 1}} />
+                    <button className="btn btn-light" onClick={() => addStep(step)}>Add Step</button>
+                    <hr style={{flexGrow: 1}} />
+                </div>
             </div>
         })}
-        <button className="btn btn-secondary" onClick={addStep}>Add Step</button>
 
         <hr />
         

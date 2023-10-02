@@ -50,7 +50,7 @@ export function FieldCanvas({ drivePose }: CanvasProps) {
     }, [drivePose, metersToPixelsRatio])
 
     return <>
-        <div style={{position: 'relative'}} ref={divRef}>
+        <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef}>
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`}></div>
             <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
         </div>
