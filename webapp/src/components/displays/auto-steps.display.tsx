@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Modal from 'react-modal';
 import { AutoStep } from '../../data/auto-step';
-import { gameData } from '../../data/game-specific-data';
 import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
@@ -19,7 +18,6 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
     let [autoSteps, setAutoSteps] = useState<AutoStep[]>([]);
     let [isEditing, setIsEditing] = useState(false);
     const inputFile = useRef<HTMLInputElement>(null);
-    const drivePoses = gameData.drivePoses;
 
     useEffect(() => {
         if (value) {
@@ -27,7 +25,7 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
         }
     }, [value]);
 
-    if(!Array.isArray(value)) {
+    if (value && !Array.isArray(value)) {
         return <SimpleDisplay entry={entry}></SimpleDisplay>;
     }
 
