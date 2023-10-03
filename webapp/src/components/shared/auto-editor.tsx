@@ -124,7 +124,7 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted, onStepMov
     }
     
     const drivePose = autoStep.assumeDrivePose();
-    const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose} onPoseManuallyMoved={onDrivePoseManuallyUpdated}/>: <></>;
+    const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose.pose} onPoseManuallyMoved={onDrivePoseManuallyUpdated} translationToleranceMeters={drivePose.translationtoleranceMeters}/>: <></>;
 
     return <div style={{display: 'flex', gap: 10}}>
         <div>

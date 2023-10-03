@@ -75,7 +75,7 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
     const getExtraDisplays = (step: AutoStep) => {
         const drivePose = step.assumeDrivePose();
         if (drivePose) {
-            return <><div style={{marginTop: 5}}></div><FieldCanvas drivePose={drivePose} /></>
+            return <><div style={{marginTop: 5}}></div><FieldCanvas drivePose={drivePose.pose} translationToleranceMeters={drivePose.translationtoleranceMeters} /></>
         }
         return <></>
     }

@@ -1,4 +1,4 @@
-import { faArrowCircleUp, faArrowDown, faArrowLeft, faArrowLeftRotate, faArrowRight, faArrowRightRotate, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowLeftRotate, faArrowRight, faArrowRightRotate, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { createRef, useState, CSSProperties, useEffect } from "react";
 import { DrivePose } from "../../data/drive-pose";
@@ -6,9 +6,10 @@ import { gameData } from "../../data/game-specific-data";
 
 type CanvasProps = {
     drivePose: DrivePose | null,
-    onPoseManuallyMoved?: (pose: DrivePose) => void
+    onPoseManuallyMoved?: (pose: DrivePose) => void,
+    translationToleranceMeters?: number;
 };
-export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
+export function FieldCanvas({ drivePose, onPoseManuallyMoved, translationToleranceMeters }: CanvasProps) {
     const isPoseEditable = !!onPoseManuallyMoved;
     const fieldWidthMeters = gameData.fieldWidthMeters;
     const robotWidthMeters = gameData.robotWidthMeters;
@@ -16,6 +17,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
     let divRef = createRef<HTMLDivElement>();
 
     let [robotPosition, setRobotPosition] = useState<CSSProperties>({});
+    let [tolerancePosition, setTolerancePosition] = useState<CSSProperties>({});
     let [metersToPixelsRatio, setMetersToPixelsRatio] = useState<number>(1);
     const metersToPixel = (meters: number) => {
         return meters * metersToPixelsRatio;
@@ -41,7 +43,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
         if (!drivePose) {
             return;
         }
-        const newState = {
+        const newState: CSSProperties = {
             position: 'absolute',
             bottom: metersToPixel(drivePose.yMeters) - metersToPixel(robotWidthMeters / 2),
             left: metersToPixel(drivePose.xMeters) - metersToPixel(robotHeightMeters / 2),
@@ -53,8 +55,22 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
             transform: `rotate(${360 - drivePose.rotationDegrees}deg)`,
             zIndex: 50,
             cursor: isPoseEditable ? 'pointer' : 'default',
-        } as CSSProperties;
+        };
         setRobotPosition(newState);
+
+        const toleranceM = translationToleranceMeters ?? 0.03;
+        const toleranceState: CSSProperties = {
+            position: 'absolute',
+            bottom: metersToPixel(drivePose.yMeters) - metersToPixel(toleranceM / 2),
+            left: metersToPixel(drivePose.xMeters) - metersToPixel(toleranceM / 2),
+            width: metersToPixel(toleranceM),
+            height: metersToPixel(toleranceM),
+            borderRadius: metersToPixel(toleranceM) / 2,
+            backgroundColor: `#cc00ff94`,
+            zIndex: 55,
+            pointerEvents: 'none',
+        }
+        setTolerancePosition(toleranceState);
     }, [drivePose, metersToPixelsRatio])
 
     const roundNumber = (aNumber: number) => {
@@ -71,6 +87,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
 
     const onRobotDragged = (event: React.DragEvent<HTMLDivElement>) => {
         setRobotPosition({...robotPosition, visibility: "hidden"});
+        setTolerancePosition({...tolerancePosition, visibility: "hidden"});
         return event.preventDefault();
     }
 
@@ -88,6 +105,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved }: CanvasProps) {
         <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef} onDragOver={onRobotDragged} onDrop={onRobotDropped}>
             <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={isPoseEditable} onDrag={event => event?.preventDefault()}></div>
+            <div style={tolerancePosition}></div>
         </div>
         {isPoseEditable ? <div>
             <button className="btn btn-light" onClick={() => manualButtonPressed(0, 0.1, 0)}><FontAwesomeIcon icon={faArrowUp}/></button>

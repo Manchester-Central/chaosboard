@@ -30,6 +30,7 @@ export class AutoStep {
         let xMeters = this.getParam('x') ?? 0;
         let yMeters = this.getParam('y') ?? 0;
         let rotationDegrees = this.getParam('angle') ?? 0;
+        let translationtoleranceMeters = +(this.getParam('translationtolerance') ?? 0.03);
         let name = 'customDrivePose';
         const drivePose = this.getParam("drivepose");
         if (drivePose) {
@@ -40,7 +41,7 @@ export class AutoStep {
             name = pose?.name ?? name;
         }
         if (xMeters || yMeters || rotationDegrees) {
-            return new DrivePose(name, +xMeters, +yMeters, +rotationDegrees);
+            return {pose: new DrivePose(name, +xMeters, +yMeters, +rotationDegrees), translationtoleranceMeters};
         }
         return null;
     }
