@@ -56,6 +56,7 @@ function AutoEditParamLine({ id, autoCommand, initialKey, initialValue, onUpdate
             labelKey="possibleValue"
             onChange={options => setValue((options[0] as {possibleValue: string})?.possibleValue)}
             options={knownArg?.possibleValues.map(possibleValue => ({possibleValue})) ?? []}
+            placeholder={knownArg?.placeholder ?? ''}
             defaultInputValue={value ?? undefined}
             style={{flexGrow: 1}}
             onInputChange={(newValue) => setValue(newValue)}
@@ -127,26 +128,30 @@ function AutoEditLine({ initialAutoStep, onStepUpdated, onStepDeleted, onStepMov
     const fieldDisplay = drivePose ? <FieldCanvas drivePose={drivePose.pose} onPoseManuallyMoved={onDrivePoseManuallyUpdated} translationToleranceMeters={drivePose.translationtoleranceMeters}/>: <></>;
 
     return <div style={{display: 'flex', gap: 10}}>
-        <div>
-            <button className="btn btn-light" onClick={() => onStepMoved(-1)}><FontAwesomeIcon icon={faAngleUp} /></button>
-        </div>
-        <div>
-            <button className="btn btn-light" onClick={() => onStepMoved(1)}><FontAwesomeIcon icon={faAngleDown} /></button>
-        </div>
-        <div>
-            <button className="btn btn-warning" onClick={() => onStepDeleted()}><FontAwesomeIcon icon={faTrash} /></button>
-        </div>
-        <div style={{minWidth: 500, width: 500}}>
-            <Typeahead
-                id={autoStep.id + "command"}
-                labelKey="commandName"
-                onChange={options => updateCommandName((options[0] as AutoCommand)?.commandName)}
-                options={gameData.autoCommands}
-                placeholder="Choose a state..."
-                defaultInputValue={autoStep.command}
-                onInputChange={newName => updateCommandName(newName)}
-            />
-            <div style={{marginLeft: 100}}>
+        <div style={{minWidth: 650, width: 650}}>
+            <div style={{display: 'flex', gap: 10}}>
+                <div style={{flexGrow: 1}}>
+                    <Typeahead
+                        id={autoStep.id + "command"}
+                        labelKey="commandName"
+                        onChange={options => updateCommandName((options[0] as AutoCommand)?.commandName)}
+                        options={gameData.autoCommands}
+                        placeholder="Choose a state..."
+                        defaultInputValue={autoStep.command}
+                        onInputChange={newName => updateCommandName(newName)}
+                    />
+                </div>
+                <div>
+                    <button className="btn btn-light" onClick={() => onStepMoved(-1)}><FontAwesomeIcon icon={faAngleUp} /></button>
+                </div>
+                <div>
+                    <button className="btn btn-light" onClick={() => onStepMoved(1)}><FontAwesomeIcon icon={faAngleDown} /></button>
+                </div>
+                <div>
+                    <button className="btn btn-warning" onClick={() => onStepDeleted()}><FontAwesomeIcon icon={faTrash} /></button>
+                </div>
+            </div>
+            <div style={{marginLeft: 30}}>
                 {args.map(({id, key, value}) => {
                     return <div key={id+"line"}><AutoEditParamLine id={id} autoCommand={knownCommand} initialKey={key} initialValue={value} onUpdated={(updatedId, newKey, newValue) => updateArg(updatedId, newKey, newValue)}/></div>
                 })}
