@@ -7,7 +7,7 @@
     "start": "npm run robot",
     "local": "concurrently --kill-others \"py -3 .\\webserver\\server.py --source localhost\" \"npm --prefix webapp start\"",
     "robot": "concurrently --kill-others \"py -3 .\\webserver\\server.py --source 10.1.31.2\" \"npm --prefix webapp start\"",
-    "setup": "npm install && npm --prefix webapp install --force && py -m pip install pyntcore asyncio websockets"
+    "setup": "npm install && npm --prefix webapp install && py -m pip install pyntcore asyncio websockets"
   },
   "author": "",
   "license": "ISC",

@@ -62,5 +62,11 @@
     "@types/react-textfit": "^1.1.0"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "overrides": {
+    "react-textfit": {
+      "react": ">=15.0.0",
+      "react-dom": ">=15.0.0"
+    }
+  }
 }
