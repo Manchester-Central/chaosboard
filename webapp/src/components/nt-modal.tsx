@@ -1,7 +1,5 @@
-import { faAdd, faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { TreeView } from '@mui/x-tree-view';
-import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
@@ -14,28 +12,29 @@ import { NtContextObject } from './nt-container';
 const onWidgetAddedSubject = new Subject<NTEntry>();
 const onWidgetAdded = onWidgetAddedSubject.asObservable();
 
-type EntryRowProps = {
+type TableRowProps = {
     node: NetworkTableTree,
     entry?: NTEntry,
+    level: number,
 };
-function EntryRow({ node, entry }: EntryRowProps) {
+function TableRow({ node, entry, level }: TableRowProps) {
 
     let [value] = useNtEntry(entry);
 
     return (
-        <div style={{display: 'flex', gap: 10, borderBottom: '1px solid gray'}}>
-            <div><button className='btn btn-chaos'>+</button></div>
-            <div style={{flexGrow: 1}}><strong>{node.key}</strong></div>
-            <div style={{width: '75vw'}}><span>{value ?? ''}</span></div>
+        <div style={{display: 'flex', borderBottom: '1px solid gray'}} className='nt-table-row' key={entry?.key}>
+            <div style={{ width: '50px' }}>{entry ? <button className='btn btn-dark btn-chaos btn-sm' onClick={() => onWidgetAddedSubject.next(entry)}><FontAwesomeIcon icon={faAdd} /></button> : <></>}</div>
+            <div style={{ paddingLeft: level * 20 + 'px', width: '30%', maxWidth: '30%', overflowX: 'auto', fontWeight: value !== undefined ? 'bolder' : 'normal' }}>{node?.key}</div>
+            <div style={{ flexGrow: 1, overflowX: 'auto' }}>{(value?.toString() as string)?.split(',').map(a => <span>{a}<br/></span>)}</div>
         </div>
     );
 }
 
-type TreeViewWrapperProps = {
+type TableBodyProps = {
     manager: NTManager,
     filterText: string,
 };
-function TreeViewWrapper({ manager, filterText }: TreeViewWrapperProps) {
+function TableBody({ manager, filterText }: TableBodyProps) {
     const [data, setData] = useState(manager.tree.children);
     const [latestUpdate, setLatestUpdate] = useState<NTEntry>();
 
@@ -49,21 +48,19 @@ function TreeViewWrapper({ manager, filterText }: TreeViewWrapperProps) {
 
     const renderNode = (node: NetworkTableTree, level: number): any => {
         const shouldShow = node.shouldShow(filterText);
-        return (
-            <TreeItem nodeId={node.keyPath} key={node.keyPath} label={node.key} hidden={!shouldShow} ContentComponent={node.entry ? () => <EntryRow entry={node.entry} node={node}/> : undefined}>
-                {node.children.size > 0 ? renderTree(node.children, level + 1) : null}
-            </TreeItem>
-        )
+        if(!shouldShow) {
+            return <></>
+        }
+        return (<>
+            <TableRow node={node} entry={node.entry} level={level}></TableRow>
+            {node.children.size > 0 ? renderTree(node.children, level + 1) : null}
+        </>)
     };
 
     return (
-        <TreeView defaultExpanded={manager.getAllKeys()}
-            defaultCollapseIcon={<FontAwesomeIcon icon={faChevronDown} />}
-            defaultExpandIcon={<FontAwesomeIcon icon={faChevronRight} />}
-            sx={{ flexGrow: 1, maxHeight: "100%", overflowY: 'auto' }} 
-        >
+        <div style={{flexGrow: 1, maxHeight: "100%", overflowY: 'auto' }}>
             {renderTree(data)}
-        </TreeView>
+        </div>
     );
 }
 
@@ -100,11 +97,11 @@ function NTModal() {
                         <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos ms-2'>Close</button>
                     </div>
                     <NtContextObject.Consumer>
-                        {context => <TreeViewWrapper manager={context} filterText={filterText}></TreeViewWrapper>}
+                        {context => <TableBody manager={context} filterText={filterText}></TableBody>}
                     </NtContextObject.Consumer>
                     <div className="input-group mb-3">
                         <span className="input-group-text">Filter</span>
-                        <input type="text" className="form-control" placeholder="Filter for certain keys here..." onChange={e => setFilterText(e.target.value)}/>
+                        <input type="text" className="form-control" placeholder="Filter for certain keys here..." value={filterText} onChange={e => setFilterText(e.target.value)}/>
                     </div>
                 </div>
             </Modal>
