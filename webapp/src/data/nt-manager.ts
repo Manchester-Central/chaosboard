@@ -1,7 +1,5 @@
 import { BehaviorSubject, Subject } from 'rxjs';
 
-const allKeys: string[] = [];
-
 export interface NTUpdate {
   key: string;
   value: any;
@@ -45,9 +43,7 @@ export class NTEntry {
 export class NetworkTableTree {
   children: Map<string, NetworkTableTree> = new Map();
 
-  constructor(public key: string, public keyPath: string, public entry?: NTEntry) {
-    allKeys.push(keyPath);
-  }
+  constructor(public key: string, public keyPath: string, public entry?: NTEntry) {}
 
   addValue(currentEntry: NTEntry, ntUpdate: NTUpdate, keyParts = ntUpdate.key.split('/'), keyPathSoFar = '') {
     let keyPartBase = keyParts[0];
@@ -92,10 +88,6 @@ export default class NTManager {
   constructor() {
     this.ws = new WebSocket('ws://localhost:13102');
     this.connect();
-  }
-
-  getAllKeys() {
-    return allKeys.slice();
   }
 
   getState() {
