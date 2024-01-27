@@ -1,5 +1,9 @@
 # CHAOSBoard
 
+> [!WARNING]  
+> You are looking at the latest CHAOSBoard for the 2023 season. Checkout the `main` branch for the latest work.
+> This is kept around for historical purposes and won't be updated any more. 
+
 This is a simple tool to make web-based widgets for debugging and monitoring our robot
 
 # Set up
