@@ -8,8 +8,8 @@
   color: white;
 }
 
-.Value-Table {
-  background-color: white;
+.nt-table-row:hover {
+  background-color: #ffd1b2;;
 }
 
 .btn.btn-light {

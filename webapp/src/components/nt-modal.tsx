@@ -15,26 +15,26 @@ const onWidgetAdded = onWidgetAddedSubject.asObservable();
 type TableRowProps = {
     node: NetworkTableTree,
     entry?: NTEntry,
-    level: number
+    level: number,
 };
 function TableRow({ node, entry, level }: TableRowProps) {
 
     let [value] = useNtEntry(entry);
 
     return (
-        <tr key={entry?.key}>
-            <td style={{ width: '50px' }}>{entry ? <button className='btn btn-dark btn-chaos btn-sm' onClick={() => onWidgetAddedSubject.next(entry)}><FontAwesomeIcon icon={faAdd} /></button> : <></>}</td>
-            <td style={{ paddingLeft: level * 20 + 'px', width: '20%' }}>{node?.key}</td>
-            <td style={{ width: '50%', maxWidth: '50%' }}>{(value?.toString() as string)?.split(',').map(a => <p>{a}</p>)}</td>
-            <td style={{ width: '20%' }}>{entry?.latestValue?.valueType?.toString()}</td>
-        </tr>
+        <div style={{display: 'flex', borderBottom: '1px solid gray'}} className='nt-table-row' key={entry?.key}>
+            <div style={{ width: '50px' }}>{entry ? <button className='btn btn-dark btn-chaos btn-sm' onClick={() => onWidgetAddedSubject.next(entry)}><FontAwesomeIcon icon={faAdd} /></button> : <></>}</div>
+            <div style={{ paddingLeft: level * 20 + 'px', width: '30%', maxWidth: '30%', overflowX: 'auto', fontWeight: value !== undefined ? 'bolder' : 'normal' }}>{node?.key}</div>
+            <div style={{ flexGrow: 1, overflowX: 'auto' }}>{(value?.toString() as string)?.split(',').map(a => <span>{a}<br/></span>)}</div>
+        </div>
     );
 }
 
 type TableBodyProps = {
     manager: NTManager,
+    filterText: string,
 };
-function TableBody({ manager }: TableBodyProps) {
+function TableBody({ manager, filterText }: TableBodyProps) {
     const [data, setData] = useState(manager.tree.children);
     const [latestUpdate, setLatestUpdate] = useState<NTEntry>();
 
@@ -46,27 +46,21 @@ function TableBody({ manager }: TableBodyProps) {
         Array.from(nodes.values()).map(node => renderNode(node, level))
     );
 
-    const renderNode = (node: NetworkTableTree, level: number): any => (
-        <>
+    const renderNode = (node: NetworkTableTree, level: number): any => {
+        const shouldShow = node.shouldShow(filterText);
+        if(!shouldShow) {
+            return <></>
+        }
+        return (<>
             <TableRow node={node} entry={node.entry} level={level}></TableRow>
             {node.children.size > 0 ? renderTree(node.children, level + 1) : null}
-        </>
-    );
+        </>)
+    };
 
     return (
-        <table className='table Value-Table'>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Key</th>
-                    <th>Value</th>
-                    <th>Type</th>
-                </tr>
-            </thead>
-            <tbody>
-                {renderTree(data)}
-            </tbody>
-        </table>
+        <div style={{flexGrow: 1, maxHeight: "100%", overflowY: 'auto' }}>
+            {renderTree(data)}
+        </div>
     );
 }
 
@@ -78,6 +72,7 @@ const styles: Modal.Styles = {
 
 function NTModal() {
     const [isModalOpen, setModalOpen] = useState(false);
+    const [filterText, setFilterText] = useState('');
 
     Modal.setAppElement('#root')
 
@@ -95,14 +90,20 @@ function NTModal() {
         <div id='ntModal'>
             <button onClick={() => setModalOpen(true)} className='btn btn-dark btn-chaos'><FontAwesomeIcon icon={faAdd} /> Widget</button>
             <Modal isOpen={isModalOpen} style={styles}>
-                <div className="sticky-top d-flex" style={{backgroundColor: 'white'}}>
-                    <h1 className="flex-fill">Network Table Entries</h1>
-                    <button onClick={() => reset()} className='btn btn-danger'>Clear All</button>
-                    <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos ms-2'>Close</button>
+                <div style={{display: 'flex', flexDirection: 'column', minHeight: '100%', maxHeight: '100%', gap: 10}}>
+                    <div style={{display: 'flex', backgroundColor: 'white'}}>
+                        <h1 className="flex-fill">Network Table Entries</h1>
+                        <button onClick={() => reset()} className='btn btn-danger'>Clear All</button>
+                        <button onClick={() => setModalOpen(false)} className='btn btn-dark btn-chaos ms-2'>Close</button>
+                    </div>
+                    <NtContextObject.Consumer>
+                        {context => <TableBody manager={context} filterText={filterText}></TableBody>}
+                    </NtContextObject.Consumer>
+                    <div className="input-group mb-3">
+                        <span className="input-group-text">Filter</span>
+                        <input type="text" className="form-control" placeholder="Filter for certain keys here..." value={filterText} onChange={e => setFilterText(e.target.value)}/>
+                    </div>
                 </div>
-                <NtContextObject.Consumer>
-                    {context => <TableBody manager={context}></TableBody>}
-                </NtContextObject.Consumer>
             </Modal>
         </div>
     );

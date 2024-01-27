@@ -65,5 +65,11 @@
     "@types/uuid": "^9.0.4"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "overrides": {
+    "react-textfit": {
+      "react": ">=15.0.0",
+      "react-dom": ">=15.0.0"
+    }
+  }
 }
