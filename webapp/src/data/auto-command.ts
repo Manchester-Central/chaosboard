@@ -107,3 +107,9 @@ export function get2023AutoCommands() {
         new AutoCommand("wait"),
     ].sort((a, b) => a.commandName.localeCompare(b.commandName));
 }
+
+export function get2024AutoCommands() {
+    return [
+        new AutoCommand("wait"),
+    ].sort((a, b) => a.commandName.localeCompare(b.commandName));
+}

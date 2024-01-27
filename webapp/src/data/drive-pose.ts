@@ -47,3 +47,9 @@ export function get2023Poses() {
     drivePoses.addDrivePose("Score9", ScoreXMeters, 3.033, ScoreAngle);
     return drivePoses;
 }
+
+export function get2024Poses() {
+    const drivePoses = new DrivePoses();
+    drivePoses.addDrivePose("Default", 8, 4, 0);
+    return drivePoses;
+}

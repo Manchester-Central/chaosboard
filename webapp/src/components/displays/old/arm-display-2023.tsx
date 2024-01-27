@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { NTEntry } from '../../data/nt-manager';
-import useNtEntry from '../../hooks/useNtEntry';
+import { NTEntry } from '../../../data/nt-manager';
+import useNtEntry from '../../../hooks/useNtEntry';
 
 const pixelsPerMeter = 500;
 const metersForDisplay = 4;
@@ -33,7 +33,11 @@ interface Shape {
 type ArmDisplayProps = {
   entry: NTEntry | undefined,
 };
-export function ArmDisplay({ entry }: ArmDisplayProps) {
+/**
+ * Creates an Arm Display for CHAOS's 2023 robot.
+ * The physical arm was dismantled, so this remains mostly for reference.
+ */
+export function ArmDisplay2023({ entry }: ArmDisplayProps) {
 
   let createShape = (widthMeters: number, heightMeters: number, xMeters: number, yMeters: number, color: string) => {
     const heightPixels = metersToPixels(heightMeters);

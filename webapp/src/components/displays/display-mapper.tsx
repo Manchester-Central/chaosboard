@@ -1,6 +1,6 @@
 import { HistoryManager } from '../../data/history-manager';
 import { NTEntry } from '../../data/nt-manager';
-import { ArmDisplay } from './arm-display';
+import { ArmDisplay2023 } from './old/arm-display-2023';
 import { AutoStepsDisplay } from './auto-steps.display';
 import { BoolDisplay } from './bool-display';
 import { ColorDisplay } from './color-display';
@@ -14,10 +14,10 @@ export enum DisplayType {
     Bool = 'Boolean',
     Color = 'Color',
     Field = 'Field',
-    Arm = 'Arm',
     Stream = 'Stream',
     AutoSteps = 'Auto Steps',
     Temp = 'Temp',
+    Arm2023 = '[Old] Arm - 2023',
 }
 
 type DisplayMapperProps = {
@@ -29,8 +29,8 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
 
     const getDisplay = () => {
         switch(selectedDisplayType) {
-            case DisplayType.Arm:
-                return ArmDisplay({entry})
+            case DisplayType.Arm2023:
+                return ArmDisplay2023({entry})
             case DisplayType.Bool:
                 return BoolDisplay({entry});
             case DisplayType.Color:
@@ -65,7 +65,7 @@ export function getDefaultType(entry: NTEntry) {
                 return DisplayType.Field;
             }
             if(entry.key.toLowerCase().includes('arm')) {
-                return DisplayType.Arm;
+                return DisplayType.Arm2023;
             }
             return DisplayType.Simple;
         case 'string':
