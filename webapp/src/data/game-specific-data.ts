@@ -22,7 +22,7 @@ class GameData2023 implements IGameSpecificData {
 }
 
 class GameData2024 implements IGameSpecificData {
-    fieldWidthMeters = 17.909477;
+    fieldWidthMeters = 16.569627;
     robotWidthMeters = 0.990;
     robotHeightMeters = 0.876;
     fieldImagePath = '/2024/field.png';
