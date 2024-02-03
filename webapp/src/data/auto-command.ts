@@ -36,6 +36,14 @@ export class AutoCommand {
     }
 }
 
+function get2024DriveArgs() {
+    return [
+        new AutoCommandArgument("X", ArgType.NUMBER, "The x position of the robot in meters"),
+        new AutoCommandArgument("Y", ArgType.NUMBER, "The x position of the robot in meters"),
+        new AutoCommandArgument("Angle", ArgType.NUMBER, "The angle of the robot in degrees"),
+    ].slice();
+} 
+
 function get2023DriveArgs() {
     return [
         new AutoCommandArgument("DrivePose", ArgType.CUSTOM, "The existing drive pose (overrides x, y, and angle)", get2023Poses().getPoseNames()),
