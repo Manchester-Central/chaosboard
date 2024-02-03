@@ -119,5 +119,7 @@ export function get2023AutoCommands() {
 export function get2024AutoCommands() {
     return [
         new AutoCommand("wait"),
+        new AutoCommand("drive", get2024DriveArgs()),
+        new AutoCommand("resetPosition", get2024DriveArgs())
     ].sort((a, b) => a.commandName.localeCompare(b.commandName));
 }
