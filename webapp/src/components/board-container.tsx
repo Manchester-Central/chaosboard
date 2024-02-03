@@ -129,7 +129,14 @@ function BoardContainer({ manager }: BoardContainerProps) {
 
     Modal.setAppElement('#root')
 
-    const selectOptions = Object.values(DisplayType).map(type => ({value: type as DisplayType, label: type}));
+    const selectOptions = Object.values(DisplayType)
+        .map(type => ({value: type as DisplayType, label: type}))
+        .sort((aType, bType) => 
+            // This logic places all types starting with a [ to the end
+            aType.label.startsWith("[") !== bType.label.startsWith("[")
+            ? 1
+            : aType.label.localeCompare(bType.label)
+        );
 
     return (
         <div>

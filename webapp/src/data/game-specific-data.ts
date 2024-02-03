@@ -1,5 +1,5 @@
-import { AutoCommand, get2023AutoCommands } from "./auto-command";
-import { DrivePoses, get2023Poses } from "./drive-pose";
+import { AutoCommand, get2023AutoCommands, get2024AutoCommands } from "./auto-command";
+import { DrivePoses, get2023Poses, get2024Poses } from "./drive-pose";
 
 interface IGameSpecificData {
     fieldWidthMeters: number;
@@ -21,5 +21,15 @@ class GameData2023 implements IGameSpecificData {
     autoCommands = get2023AutoCommands();
 }
 
-// FUTURE: Change this when preparing for a new robot
-export const gameData: IGameSpecificData = new GameData2023();
+class GameData2024 implements IGameSpecificData {
+    fieldWidthMeters = 16.569627;
+    robotWidthMeters = 0.990;
+    robotHeightMeters = 0.876;
+    fieldImagePath = '/2024/field.png';
+    robotImagePath = '/2024/robot.png';
+    drivePoses = get2024Poses();
+    autoCommands = get2024AutoCommands();
+}
+
+// FUTURE: Change this when preparing for a new robot - should either clean up old years or have a way of switching
+export const gameData: IGameSpecificData = new GameData2024();

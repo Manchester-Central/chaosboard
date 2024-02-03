@@ -36,6 +36,14 @@ export class AutoCommand {
     }
 }
 
+function get2024DriveArgs() {
+    return [
+        new AutoCommandArgument("X", ArgType.NUMBER, "The x position of the robot in meters"),
+        new AutoCommandArgument("Y", ArgType.NUMBER, "The x position of the robot in meters"),
+        new AutoCommandArgument("Angle", ArgType.NUMBER, "The angle of the robot in degrees"),
+    ].slice();
+} 
+
 function get2023DriveArgs() {
     return [
         new AutoCommandArgument("DrivePose", ArgType.CUSTOM, "The existing drive pose (overrides x, y, and angle)", get2023Poses().getPoseNames()),
@@ -104,6 +112,12 @@ export function get2023AutoCommands() {
         new AutoCommand("driveUntilTipped", [new AutoCommandArgument("Speed", ArgType.NUMBER, "The (-1.0, 1.0) max speed of the robot"), new AutoCommandArgument("MinAngleDegrees", ArgType.NUMBER, "The angle to stop moving")]),
         new AutoCommand("recalibrateArm"),
         new AutoCommand("driveAndIntake", get2023DriveAndArmArgs()),
+        new AutoCommand("wait"),
+    ].sort((a, b) => a.commandName.localeCompare(b.commandName));
+}
+
+export function get2024AutoCommands() {
+    return [
         new AutoCommand("wait"),
     ].sort((a, b) => a.commandName.localeCompare(b.commandName));
 }
