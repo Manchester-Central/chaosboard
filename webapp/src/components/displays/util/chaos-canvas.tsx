@@ -49,7 +49,6 @@ export class CanvasHelper {
         context.fillStyle = color;
         context.textAlign = "center";
         context.textBaseline = "middle";
-        console.log(shape.heightPixels, fontSize, (shape.heightPixels - fontSize) / 2);
         context.fillText(text, shape.coordinate.xPixels + (shape.widthPixels / 2), shape.coordinate.yPixels + (shape.heightPixels / 2));
     }
     
