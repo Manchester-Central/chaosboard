@@ -10,6 +10,7 @@ const chaosGreen = '#134122';
 const chaosAltGreen = '#9fc7ad';
 const chaosOrange = '#ff6700';
 const chaosGreenTransparent = chaosGreen + 'ee';
+const chaosOrangeTransparent = chaosOrange + '77';
 
 type ArmDisplayProps = {
   entry: NTEntry | undefined,
@@ -21,7 +22,7 @@ type ArmDisplayProps = {
 export function RobotDisplay2024({ entry }: ArmDisplayProps) {
   const [ch] = useState(new CanvasHelper(1.5));
 
-  const draw = (context: CanvasRenderingContext2D, [intakeSpeed, liftHeightMeters]: (number | undefined)[], frameCount: number) => {
+  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, launcherPower]: (number | undefined)[], frameCount: number) => {
     // wheels
     const wheelDiameterMeters = 0.102;
     const wheelLeft = ch.createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'black');
@@ -37,8 +38,7 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     ch.drawRoundRectangle(context, basePlate, basePlate.heightPixels / 3);
 
     // Lift Height
-    liftHeightMeters = liftHeightMeters ?? 0.547852;
-    // liftHeightMeters = 1; // TODO: change
+    liftHeightMeters = liftHeightMeters ?? 0.35;
     const liftWidth = 0.050800;
     const liftAngleDegrees = 80;
     const liftEnd = ch.drawLine(context, ch.getCoordinateFromMeters(-0.096682, 0.071550), liftAngleDegrees, liftHeightMeters, chaosAltGreen, ch.metersToPixels(liftWidth));
@@ -48,6 +48,12 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const platformLength = 0.340474;
     const platformWidth = 0.02;
     const platformEnd = ch.drawLine(context, liftEnd, liftPlatformAngleDegrees, platformLength, 'silver', ch.metersToPixels(platformWidth));
+
+    // launcher
+    launcherAngleDegrees = (launcherAngleDegrees ?? 0) + 180;
+    const launcherLength = 0.333747;
+    const launcherWidth = 0.1;
+    ch.drawLine(context, platformEnd, launcherAngleDegrees, launcherLength, chaosOrangeTransparent, ch.metersToPixels(launcherWidth));
 
     // static lift beam
     const beamLength = 0.547852; // todo: confirm
