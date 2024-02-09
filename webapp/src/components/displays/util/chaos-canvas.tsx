@@ -92,7 +92,6 @@ type ChaosCanvasProps = {
 export function ChaosCanvas({ entry, canvasHelper, draw }: ChaosCanvasProps) {
 
     const [value] = useNtEntry(entry);
-    const [errorMessage, setErrorMessage] = useState<string>();
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -114,14 +113,10 @@ export function ChaosCanvas({ entry, canvasHelper, draw }: ChaosCanvasProps) {
         let animationFrameId: number;
         const render = () => {
             frameCount++;
-            if (Array.isArray(value)) {
-                setErrorMessage(undefined);
-                context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-                showGrid(context);
-                draw(context, value, frameCount);
-            } else {
-                setErrorMessage(`${entry?.title} is not an array and can't be used with the canvas tool.`);
-            }
+            const valueAsArray = Array.isArray(value) ? value : [value];
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+            showGrid(context);
+            draw(context, valueAsArray, frameCount);
             animationFrameId = window.requestAnimationFrame(render);
         };
         render();
@@ -132,7 +127,6 @@ export function ChaosCanvas({ entry, canvasHelper, draw }: ChaosCanvasProps) {
 
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
-            {!!errorMessage ? <h1>{errorMessage}</h1> : <></>}
             <canvas width={canvasHelper.pixelsForDisplay} height={canvasHelper.pixelsForDisplay} style={{ width: '100%', height: '100%', border: '1px solid black' }} ref={canvasRef}></canvas>
         </div>
     );
