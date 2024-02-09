@@ -42,6 +42,16 @@ export class CanvasHelper {
         context.roundRect(shape.coordinate.xPixels, shape.coordinate.yPixels, shape.widthPixels, shape.heightPixels, radiusPixels);
         context.fill();
     }
+
+    addTextToShape = (context: CanvasRenderingContext2D, shape: Shape, text: string, color: string, fontSize: number) => {
+        context.beginPath();
+        context.font = `${fontSize}px Arial`;
+        context.fillStyle = color;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        console.log(shape.heightPixels, fontSize, (shape.heightPixels - fontSize) / 2);
+        context.fillText(text, shape.coordinate.xPixels + (shape.widthPixels / 2), shape.coordinate.yPixels + (shape.heightPixels / 2));
+    }
     
     drawLine = (context: CanvasRenderingContext2D, start: Coordinate, angleDegrees: number, lengthMeters: number, color: string, width: number) => {
         const startXPixel = start.xPixels;

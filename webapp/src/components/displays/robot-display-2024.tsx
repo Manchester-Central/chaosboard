@@ -37,6 +37,7 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const bumpersOffset = 0.539496 - (0.990092 / 2);
     const bumpers = ch.createShape(bumbersWidth, bumbersHeight, bumpersOffset, bumperHeightOffGround, 'forestgreen');
     ch.drawRoundRectangle(context, bumpers, bumpers.heightPixels / 3);
+    ch.addTextToShape(context, bumpers, '131', 'white', 50);
   };
 
   return (
