@@ -2,65 +2,70 @@ import { useEffect, useRef, useState } from 'react';
 import { NTEntry } from '../../../data/nt-manager';
 import useNtEntry from '../../../hooks/useNtEntry';
 
-const pixelsPerMeter = 500;
-const metersForDisplay = 4;
-const pixelsForDisplay = pixelsPerMeter * metersForDisplay;
-export const metersToPixels = (meters: number) => Math.floor(meters * pixelsPerMeter);
-export const getXCoordinate = (meters: number, widthPixels: number = 0) => metersToPixels(meters) + (pixelsForDisplay / 2) - (widthPixels / 2); // Center the x coordinate
-export const getYCoordinate = (meters: number, heightPixels: number = 0) => pixelsForDisplay - metersToPixels(meters) - heightPixels; // base the y on the bottom of the shape
+export class CanvasHelper {
+    public readonly pixelsForDisplay: number;
 
-export const createShape = (widthMeters: number, heightMeters: number, xMeters: number, yMeters: number, color: string) => {
-    const heightPixels = metersToPixels(heightMeters);
-    const widthPixels = metersToPixels(widthMeters);
-    const shape: Shape = {
-        widthMeters,
-        heightMeters,
-        xMeters,
-        yMeters,
-        widthPixels,
-        heightPixels,
-        coordinate: Coordinate.fromMeters(xMeters, yMeters, widthPixels, heightPixels),
-        color,
+    constructor(public readonly metersForDisplay = 4, public readonly pixelsPerMeter = 500, ) {
+        this.pixelsForDisplay = pixelsPerMeter * metersForDisplay;
     }
-    return shape;
-};
 
-export const drawRectangle = (context: CanvasRenderingContext2D, shape: Shape) => {
-    context.fillStyle = shape.color;
-    context.beginPath();
-    context.rect(shape.coordinate.x, shape.coordinate.y, shape.widthPixels, shape.heightPixels);
-    context.fill();
-}
+    metersToPixels = (meters: number) => Math.floor(meters * this.pixelsPerMeter);
+    getXCoordinate = (meters: number, widthPixels: number = 0) => this.metersToPixels(meters) + (this.pixelsForDisplay / 2) - (widthPixels / 2); // Center the x coordinate
+    getYCoordinate = (meters: number, heightPixels: number = 0) => this.pixelsForDisplay - this.metersToPixels(meters) - heightPixels; // base the y on the bottom of the shape
 
-export const drawRoundRectangle = (context: CanvasRenderingContext2D, shape: Shape, radiusPixels: number) => {
-    context.fillStyle = shape.color;
-    context.beginPath();
-    context.roundRect(shape.coordinate.x, shape.coordinate.y, shape.widthPixels, shape.heightPixels, radiusPixels);
-    context.fill();
-}
+    createShape = (widthMeters: number, heightMeters: number, xMeters: number, yMeters: number, color: string) => {
+        const heightPixels = this.metersToPixels(heightMeters);
+        const widthPixels = this.metersToPixels(widthMeters);
+        const shape: Shape = {
+            widthMeters,
+            heightMeters,
+            xMeters,
+            yMeters,
+            widthPixels,
+            heightPixels,
+            coordinate: this.getCoordinateFromMeters(xMeters, yMeters, widthPixels, heightPixels),
+            color,
+        }
+        return shape;
+    };
+    
+    drawRectangle = (context: CanvasRenderingContext2D, shape: Shape) => {
+        context.fillStyle = shape.color;
+        context.beginPath();
+        context.rect(shape.coordinate.xPixels, shape.coordinate.yPixels, shape.widthPixels, shape.heightPixels);
+        context.fill();
+    }
+    
+    drawRoundRectangle = (context: CanvasRenderingContext2D, shape: Shape, radiusPixels: number) => {
+        context.fillStyle = shape.color;
+        context.beginPath();
+        context.roundRect(shape.coordinate.xPixels, shape.coordinate.yPixels, shape.widthPixels, shape.heightPixels, radiusPixels);
+        context.fill();
+    }
+    
+    drawLine = (context: CanvasRenderingContext2D, start: Coordinate, angleDegrees: number, lengthMeters: number, color: string, width: number) => {
+        const startXPixel = start.xPixels;
+        const startYPixel = start.yPixels;
+        context.strokeStyle = color;
+        context.lineWidth = width;
+        context.beginPath();
+        context.moveTo(startXPixel, startYPixel);
+        let angleRadians = angleDegrees * Math.PI / 180;
+        let endX = startXPixel + this.metersToPixels(lengthMeters) * Math.cos(angleRadians);
+        let endY = startYPixel - this.metersToPixels(lengthMeters) * Math.sin(angleRadians);
+        context.lineTo(endX, endY);
+        context.stroke();
+        return new Coordinate(endX, endY);
+    }
 
-export const drawLine = (context: CanvasRenderingContext2D, start: Coordinate, angleDegrees: number, lengthMeters: number, color: string, width: number) => {
-    const startXPixel = start.x;
-    const startYPixel = start.y;
-    context.strokeStyle = color;
-    context.lineWidth = width;
-    context.beginPath();
-    context.moveTo(startXPixel, startYPixel);
-    let angleRadians = angleDegrees * Math.PI / 180;
-    let endX = startXPixel + metersToPixels(lengthMeters) * Math.cos(angleRadians);
-    let endY = startYPixel - metersToPixels(lengthMeters) * Math.sin(angleRadians);
-    context.lineTo(endX, endY);
-    context.stroke();
-    return new Coordinate(endX, endY);
+    getCoordinateFromMeters(xMeters: number, yMeters: number, widthPixels: number = 0, heightPixels: number = 0): Coordinate {
+        return new Coordinate(this.getXCoordinate(xMeters, widthPixels), this.getYCoordinate(yMeters, heightPixels));
+    }
 }
 
 export class Coordinate {
-    constructor(public x: number, public y: number) {
+    constructor(public xPixels: number, public yPixels: number) {
 
-    }
-
-    static fromMeters(xMeters: number, yMeters: number, widthPixels: number = 0, heightPixels: number = 0): Coordinate {
-        return new Coordinate(getXCoordinate(xMeters, widthPixels), getYCoordinate(yMeters, heightPixels));
     }
 }
 
@@ -77,13 +82,14 @@ export interface Shape {
 
 type ChaosCanvasProps = {
     entry: NTEntry | undefined,
+    canvasHelper: CanvasHelper,
     draw: <T extends (any | undefined)[]>(context: CanvasRenderingContext2D, ntValue: T, frameCount: number) => void
 };
 /**
  * Creates an Arm Display for CHAOS's 2023 robot.
  * The physical arm was dismantled, so this remains mostly for reference.
  */
-export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
+export function ChaosCanvas({ entry, canvasHelper, draw }: ChaosCanvasProps) {
 
     const [value] = useNtEntry(entry);
     const [errorMessage, setErrorMessage] = useState<string>();
@@ -92,7 +98,7 @@ export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
 
     const showGrid = (context: CanvasRenderingContext2D) => {
         const gridColor = '#80808029';
-        drawLine(context, Coordinate.fromMeters(0, 0), 90, metersForDisplay, gridColor, 5);
+        canvasHelper.drawLine(context, canvasHelper.getCoordinateFromMeters(0, 0), 90, canvasHelper.metersForDisplay, gridColor, 5);
     };
 
     useEffect(() => {
@@ -127,7 +133,7 @@ export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
             {!!errorMessage ? <h1>{errorMessage}</h1> : <></>}
-            <canvas width={pixelsForDisplay} height={pixelsForDisplay} style={{ width: '100%', height: '100%', border: '1px solid black' }} ref={canvasRef}></canvas>
+            <canvas width={canvasHelper.pixelsForDisplay} height={canvasHelper.pixelsForDisplay} style={{ width: '100%', height: '100%', border: '1px solid black' }} ref={canvasRef}></canvas>
         </div>
     );
 
