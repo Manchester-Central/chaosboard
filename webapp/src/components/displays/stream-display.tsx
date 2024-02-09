@@ -9,7 +9,7 @@ export function StreamDisplay({ entry }: StreamDisplayProps) {
     let [value, updateValue] = useNtEntry(entry);
 
     if(!value) {
-        return;
+        return <></>;
     }
 
     return (

@@ -8,6 +8,7 @@ import { FieldDisplay } from './field-display';
 import { SimpleDisplay } from './simple-text-display';
 import { StreamDisplay } from './stream-display';
 import { TempDisplay } from './temp-display';
+import { RobotDisplay2024 } from './robot-display-2024';
 
 export enum DisplayType {
     Simple = 'Simple',
@@ -17,6 +18,7 @@ export enum DisplayType {
     Stream = 'Stream',
     AutoSteps = 'Auto Steps',
     Temp = 'Temp',
+    Robot2024 = 'Robot - 2024',
     Arm2023 = '[Old] Arm - 2023',
 }
 
@@ -27,32 +29,27 @@ type DisplayMapperProps = {
 };
 export function DisplayMapper({ entry, selectedDisplayType, historyManager }: DisplayMapperProps) {
 
-    const getDisplay = () => {
-        switch(selectedDisplayType) {
-            case DisplayType.Arm2023:
-                return ArmDisplay2023({entry})
-            case DisplayType.Bool:
-                return BoolDisplay({entry});
-            case DisplayType.Color:
-                return ColorDisplay({entry});
-            case DisplayType.Field:
-                return FieldDisplay({entry});
-            case DisplayType.Stream:
-                return StreamDisplay({entry});
-            case DisplayType.AutoSteps:
-                return AutoStepsDisplay({entry, historyManager});
-            case DisplayType.Temp:
-                return TempDisplay({entry});
-            default:
-                return SimpleDisplay({entry});
-        }
+    switch(selectedDisplayType) {
+        case DisplayType.Bool:
+            return <BoolDisplay entry={entry}/>;
+        case DisplayType.Color:
+            return <ColorDisplay entry={entry}/>;
+        case DisplayType.Field:
+            return <FieldDisplay entry={entry}/>;
+        case DisplayType.Stream:
+            return <StreamDisplay entry={entry}/>;
+        case DisplayType.AutoSteps:
+            return <AutoStepsDisplay entry={entry} historyManager={historyManager}/>;
+        case DisplayType.Temp:
+            return <TempDisplay entry={entry}/>;
+        case DisplayType.Robot2024:
+            return <RobotDisplay2024 entry={entry}/>;
+        case DisplayType.Arm2023:
+            return <ArmDisplay2023 entry={entry}/>;
+        default:
+            return <SimpleDisplay entry={entry}/>;
     }
 
-    return (
-        <>
-            {getDisplay()}
-        </>
-    );
 }
 
 export function getDefaultType(entry: NTEntry) {
@@ -63,6 +60,9 @@ export function getDefaultType(entry: NTEntry) {
             let numberArrayValue = entry?.latestValue.value as number[];
             if(numberArrayValue.length === 3) {
                 return DisplayType.Field;
+            }
+            if(entry.key.toLowerCase().includes('Robot2024')) {
+                return DisplayType.Robot2024;
             }
             if(entry.key.toLowerCase().includes('arm')) {
                 return DisplayType.Arm2023;
