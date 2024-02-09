@@ -19,8 +19,6 @@ type ArmDisplayProps = {
 export function ArmDisplay2023({ entry }: ArmDisplayProps) {
 
   const draw = (context: CanvasRenderingContext2D, [shoulderAngleDegrees, extenderLengthMeters, wristAngleDegrees, gripperPower]: (number | undefined)[], frameCount: number) => {
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-
     const unsafeColor = frameCount % 100 > 50 ? '#aa000055' : '#aa111177';
     const unsafeZone = createShape(0.4, 0.130, 0, 0.1, unsafeColor);
     const shoulderPivotDiamterMeters = 0.2;

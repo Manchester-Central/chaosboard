@@ -88,7 +88,12 @@ export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
     const [value] = useNtEntry(entry);
     const [errorMessage, setErrorMessage] = useState<string>();
 
-    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    const showGrid = (context: CanvasRenderingContext2D) => {
+        const gridColor = '#80808029';
+        drawLine(context, Coordinate.fromMeters(0, 0), 90, metersForDisplay, gridColor, 5);
+    };
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -106,6 +111,7 @@ export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
             if (Array.isArray(value)) {
                 setErrorMessage(undefined);
                 context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                showGrid(context);
                 draw(context, value, frameCount);
             } else {
                 setErrorMessage(`${entry?.title} is not an array and can't be used with the canvas tool.`);
