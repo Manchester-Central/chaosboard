@@ -29,34 +29,27 @@ type DisplayMapperProps = {
 };
 export function DisplayMapper({ entry, selectedDisplayType, historyManager }: DisplayMapperProps) {
 
-    const getDisplay = () => {
-        switch(selectedDisplayType) {
-            case DisplayType.Bool:
-                return BoolDisplay({entry});
-            case DisplayType.Color:
-                return ColorDisplay({entry});
-            case DisplayType.Field:
-                return FieldDisplay({entry});
-            case DisplayType.Stream:
-                return StreamDisplay({entry});
-            case DisplayType.AutoSteps:
-                return AutoStepsDisplay({entry, historyManager});
-            case DisplayType.Temp:
-                return TempDisplay({entry});
-            case DisplayType.Robot2024:
-                return RobotDisplay2024({entry})
-            case DisplayType.Arm2023:
-                return ArmDisplay2023({entry})
-            default:
-                return SimpleDisplay({entry});
-        }
+    switch(selectedDisplayType) {
+        case DisplayType.Bool:
+            return <BoolDisplay entry={entry}/>;
+        case DisplayType.Color:
+            return <ColorDisplay entry={entry}/>;
+        case DisplayType.Field:
+            return <FieldDisplay entry={entry}/>;
+        case DisplayType.Stream:
+            return <StreamDisplay entry={entry}/>;
+        case DisplayType.AutoSteps:
+            return <AutoStepsDisplay entry={entry} historyManager={historyManager}/>;
+        case DisplayType.Temp:
+            return <TempDisplay entry={entry}/>;
+        case DisplayType.Robot2024:
+            return <RobotDisplay2024 entry={entry}/>;
+        case DisplayType.Arm2023:
+            return <ArmDisplay2023 entry={entry}/>;
+        default:
+            return <SimpleDisplay entry={entry}/>;
     }
 
-    return (
-        <>
-            {getDisplay()}
-        </>
-    );
 }
 
 export function getDefaultType(entry: NTEntry) {
