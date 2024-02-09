@@ -18,7 +18,7 @@ type ArmDisplayProps = {
  */
 export function ArmDisplay2023({ entry }: ArmDisplayProps) {
 
-  const draw = (context: CanvasRenderingContext2D, value: any, frameCount: number) => {
+  const draw = (context: CanvasRenderingContext2D, [shoulderAngleDegrees, extenderLengthMeters, wristAngleDegrees, gripperPower]: (number | undefined)[], frameCount: number) => {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
     const unsafeColor = frameCount % 100 > 50 ? '#aa000055' : '#aa111177';
@@ -52,8 +52,8 @@ export function ArmDisplay2023({ entry }: ArmDisplayProps) {
     const highPole = createShape(0.042, 1.17, hightLevelXOffsetMeters, 0, 'gold');
     const substationLevel = createShape(scoringZoneWidthMeters, 0.1, -scoringZoneXOffsetMeters, 0.85, 'lightblue');
 
-    let shoulderAngleDegrees = value?.[0] ?? 0;
-    let extenderLengthMeters = value?.[1] ?? 1;
+    shoulderAngleDegrees = shoulderAngleDegrees ?? 0;
+    extenderLengthMeters = extenderLengthMeters ?? 1;
     let extenderLength1 = 0.715;
     let extenderLength2 = 0.72;
     let extenderSeparationMeters = 0.06;
@@ -65,7 +65,7 @@ export function ArmDisplay2023({ entry }: ArmDisplayProps) {
     const extenderEndpoint2 = drawLine(context, extenderStart2B,  shoulderAngleDegrees, extenderLength2, 'orange', extenderWidth);
     drawLine(context, extenderEndpoint2,  shoulderAngleDegrees, 0.02, 'orange', extenderWidth)
 
-    let gripperPower = value?.[3] ?? 0;
+    gripperPower = gripperPower ?? 0;
     let gripperColor = 'red';
     if (gripperPower > 0) {
       gripperColor = '#134122';
@@ -74,7 +74,7 @@ export function ArmDisplay2023({ entry }: ArmDisplayProps) {
       gripperColor = '#F26722';
     }
 
-    let wristAngleDegrees = value?.[2] ?? 0;
+    wristAngleDegrees = wristAngleDegrees ?? 0;
     wristAngleDegrees += shoulderAngleDegrees;
     let wristLengthMeters = 0.321;
     drawLine(context, extenderEndpoint2, wristAngleDegrees, 0.11, gripperColor, metersToPixels(0.14));

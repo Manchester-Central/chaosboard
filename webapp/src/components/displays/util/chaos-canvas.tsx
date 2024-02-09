@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NTEntry } from '../../../data/nt-manager';
 import useNtEntry from '../../../hooks/useNtEntry';
 
@@ -77,7 +77,7 @@ export interface Shape {
 
 type ChaosCanvasProps = {
     entry: NTEntry | undefined,
-    draw: (context: CanvasRenderingContext2D, ntValue: any, frameCount: number) => void
+    draw: <T extends (any | undefined)[]>(context: CanvasRenderingContext2D, ntValue: T, frameCount: number) => void
 };
 /**
  * Creates an Arm Display for CHAOS's 2023 robot.
@@ -85,7 +85,8 @@ type ChaosCanvasProps = {
  */
 export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
 
-    let [value] = useNtEntry(entry);
+    const [value] = useNtEntry(entry);
+    const [errorMessage, setErrorMessage] = useState<string>();
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -102,8 +103,13 @@ export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
         let animationFrameId: number;
         const render = () => {
             frameCount++;
-            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-            draw(context, value, frameCount);
+            if (Array.isArray(value)) {
+                setErrorMessage(undefined);
+                context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                draw(context, value, frameCount);
+            } else {
+                setErrorMessage(`${entry?.title} is not an array and can't be used with the canvas tool.`);
+            }
             animationFrameId = window.requestAnimationFrame(render);
         };
         render();
@@ -112,9 +118,9 @@ export function ChaosCanvas({ entry, draw }: ChaosCanvasProps) {
         };
     }, [value]);
 
-
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
+            {!!errorMessage ? <h1>{errorMessage}</h1> : <></>}
             <canvas width={pixelsForDisplay} height={pixelsForDisplay} style={{ width: '100%', height: '100%', border: '1px solid black' }} ref={canvasRef}></canvas>
         </div>
     );
