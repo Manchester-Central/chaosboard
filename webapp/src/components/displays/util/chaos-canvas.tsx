@@ -52,11 +52,11 @@ export class CanvasHelper {
         context.fillText(text, shape.coordinate.xPixels + (shape.widthPixels / 2), shape.coordinate.yPixels + (shape.heightPixels / 2));
     }
     
-    drawLine = (context: CanvasRenderingContext2D, start: Coordinate, angleDegrees: number, lengthMeters: number, color: string, width: number) => {
+    drawLine = (context: CanvasRenderingContext2D, start: Coordinate, angleDegrees: number, lengthMeters: number, color: string, widthPixels: number) => {
         const startXPixel = start.xPixels;
         const startYPixel = start.yPixels;
         context.strokeStyle = color;
-        context.lineWidth = width;
+        context.lineWidth = widthPixels;
         context.beginPath();
         context.moveTo(startXPixel, startYPixel);
         let angleRadians = angleDegrees * Math.PI / 180;
