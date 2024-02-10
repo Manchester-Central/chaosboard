@@ -65,14 +65,14 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const platformEnd = ch.drawLine(context, liftEnd, liftPlatformAngleDegrees, platformLength, 'silver', ch.metersToPixels(platformWidth));
 
     // launcher
-    const launcherAngleDegreesConverted = (launcherAngleDegrees ?? 0) + 180;
+    const launcherAngleDegreesConverted = 180 - (launcherAngleDegrees ?? 0);
     const launcherLength = 0.333747;
     const launcherWidth = 0.1;
     const launcherColor = getDirectionColor(launcherPower ?? 0, frameCount);
     ch.drawLine(context, platformEnd, launcherAngleDegreesConverted, launcherLength, launcherColor, ch.metersToPixels(launcherWidth));
 
     // feeder
-    const feederAngle = (launcherAngleDegrees ?? 0) - 20;
+    const feederAngle = launcherAngleDegreesConverted - 200;
     const feederLength = 0.05;
     const feederWidth = 0.1;
     const feederColor = getDirectionColor(feederPower ?? 0, frameCount);

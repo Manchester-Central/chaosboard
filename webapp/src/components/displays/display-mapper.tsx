@@ -61,7 +61,7 @@ export function getDefaultType(entry: NTEntry) {
             if(numberArrayValue.length === 3) {
                 return DisplayType.Field;
             }
-            if(entry.key.toLowerCase().includes('Robot2024')) {
+            if(entry.key.toLowerCase().includes('robot2024/state')) {
                 return DisplayType.Robot2024;
             }
             if(entry.key.toLowerCase().includes('arm')) {
