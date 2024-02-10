@@ -56,7 +56,7 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     liftHeightMeters = liftHeightMeters ?? 0.35;
     const liftWidth = 0.050800;
     const liftAngleDegrees = 80;
-    const liftEnd = ch.drawLine(context, ch.getCoordinateFromMeters(-0.096682, 0.071550), liftAngleDegrees, liftHeightMeters, chaosAltGreen, ch.metersToPixels(liftWidth));
+    const liftEnd = ch.drawLine(context, ch.getCoordinateFromMeters(-0.091682, 0.071550), liftAngleDegrees, liftHeightMeters, chaosAltGreen, ch.metersToPixels(liftWidth));
 
     // lift platform
     const liftPlatformAngleDegrees = -11.826423;
@@ -81,7 +81,7 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     // static lift beam
     const beamLength = 0.547852;
     const beamWidth = 0.050800;
-    ch.drawLine(context, ch.getCoordinateFromMeters(-0.096682, 0.071550), liftAngleDegrees, beamLength, chaosGreen, ch.metersToPixels(beamWidth));
+    ch.drawLine(context, ch.getCoordinateFromMeters(-0.091682, 0.071550), liftAngleDegrees, beamLength, chaosGreen, ch.metersToPixels(beamWidth));
 
     // static lift brace
     const braceLength = 0.446015;
