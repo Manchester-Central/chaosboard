@@ -12,6 +12,21 @@ const chaosOrange = '#ff6700';
 const chaosGreenTransparent = chaosGreen + 'ee';
 const chaosOrangeTransparent = chaosOrange + '77';
 
+const getDirectionColor = (power: number, frameCount: number) => {
+  if (frameCount % 50 > 40) {
+    return '#80808022'
+  }
+  if (power === 0) {
+    return '#80808055';
+  }
+  const opacity = (Math.abs(power / 1) / 2) + 0.25;
+  if (power > 0) {
+    return `rgba(0, 255, 0, ${opacity})`;
+  } else {
+    return `rgba(255, 100, 0, ${opacity})`;
+  }
+}
+
 type ArmDisplayProps = {
   entry: NTEntry | undefined,
 };
@@ -22,7 +37,7 @@ type ArmDisplayProps = {
 export function RobotDisplay2024({ entry }: ArmDisplayProps) {
   const [ch] = useState(new CanvasHelper(1.5));
 
-  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, launcherPower]: (number | undefined)[], frameCount: number) => {
+  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, feederPower, launcherPower]: (number | undefined)[], frameCount: number) => {
     // wheels
     const wheelDiameterMeters = 0.102;
     const wheelLeft = ch.createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'black');
@@ -50,13 +65,21 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const platformEnd = ch.drawLine(context, liftEnd, liftPlatformAngleDegrees, platformLength, 'silver', ch.metersToPixels(platformWidth));
 
     // launcher
-    launcherAngleDegrees = (launcherAngleDegrees ?? 0) + 180;
+    const launcherAngleDegreesConverted = (launcherAngleDegrees ?? 0) + 180;
     const launcherLength = 0.333747;
     const launcherWidth = 0.1;
-    ch.drawLine(context, platformEnd, launcherAngleDegrees, launcherLength, chaosOrangeTransparent, ch.metersToPixels(launcherWidth));
+    const launcherColor = getDirectionColor(launcherPower ?? 0, frameCount);
+    ch.drawLine(context, platformEnd, launcherAngleDegreesConverted, launcherLength, launcherColor, ch.metersToPixels(launcherWidth));
+
+    // feeder
+    const feederAngle = (launcherAngleDegrees ?? 0) - 20;
+    const feederLength = 0.05;
+    const feederWidth = 0.1;
+    const feederColor = getDirectionColor(feederPower ?? 0, frameCount);
+    ch.drawLine(context, platformEnd, feederAngle, feederLength, feederColor, ch.metersToPixels(feederWidth));
 
     // static lift beam
-    const beamLength = 0.547852; // todo: confirm
+    const beamLength = 0.547852;
     const beamWidth = 0.050800;
     ch.drawLine(context, ch.getCoordinateFromMeters(-0.096682, 0.071550), liftAngleDegrees, beamLength, chaosGreen, ch.metersToPixels(beamWidth));
 
@@ -65,6 +88,13 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const braceWidth = 0.025400;
     const braceAngleDegrees = 49.157005;
     ch.drawLine(context, ch.getCoordinateFromMeters(-0.308817, 0.180586), braceAngleDegrees, braceLength, chaosGreen, ch.metersToPixels(braceWidth));
+
+    // intake
+    const intakeLength = 0.3;
+    const intakeWidth = 0.072599;
+    const intakeAngleDegrees = 110;
+    const intakeColor = getDirectionColor(intakePower ?? 0, frameCount);
+    ch.drawLine(context, ch.getCoordinateFromMeters(0.432365, 0.031797), intakeAngleDegrees, intakeLength, intakeColor, ch.metersToPixels(intakeWidth));
 
     // bumpers
     const bumbersWidth = 0.990092;
