@@ -11,6 +11,7 @@ const chaosAltGreen = '#9fc7ad';
 const chaosOrange = '#ff6700';
 const chaosGreenTransparent = chaosGreen + 'ee';
 const chaosOrangeTransparent = chaosOrange + '77';
+const transparent = '#00000000';
 
 const getDirectionColor = (power: number, frameCount: number) => {
   if (frameCount % 50 > 40) {
@@ -37,7 +38,10 @@ type ArmDisplayProps = {
 export function RobotDisplay2024({ entry }: ArmDisplayProps) {
   const [ch] = useState(new CanvasHelper(1.5));
 
-  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, feederPower, launcherPower]: (number | undefined)[], frameCount: number) => {
+  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, feederPower, launcherPower, feederAtPrimaryDbl, feederAtSecondaryDbl]: (number | undefined)[], frameCount: number) => {
+    const isFeederAtPrimary = !!feederAtPrimaryDbl;
+    const isFeederAtSecondary = !!feederAtSecondaryDbl;
+
     // wheels
     const wheelDiameterMeters = 0.102;
     const wheelLeft = ch.createShape(wheelDiameterMeters, wheelDiameterMeters, -0.27, 0.0, 'black');
@@ -77,6 +81,32 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const feederWidth = 0.1;
     const feederColor = getDirectionColor(feederPower ?? 0, frameCount);
     ch.drawLine(context, platformEnd, feederAngle, feederLength, feederColor, ch.metersToPixels(feederWidth));
+
+    // feeder sensors
+    const feederPrimaryDistanceIntoLauncher = 0.20;
+    const feeder1Coordinate = ch.drawLine(context, platformEnd, launcherAngleDegreesConverted, feederPrimaryDistanceIntoLauncher, transparent, 1);
+    const feeder1Meters = ch.getMetersFromCoordinate(feeder1Coordinate);
+    const feederPrimary = ch.createShape(0.02, 0.02, feeder1Meters.xMeters, feeder1Meters.yMeters, isFeederAtPrimary ? chaosGreenTransparent : chaosOrangeTransparent);
+
+    const feederSecondaryDistanceIntoLauncher = 0.25;
+    const feeder2Coordinate = ch.drawLine(context, platformEnd, launcherAngleDegreesConverted, feederSecondaryDistanceIntoLauncher, transparent, 1);
+    const feeder2Meters = ch.getMetersFromCoordinate(feeder2Coordinate);
+    const feederSecondary = ch.createShape(0.02, 0.02, feeder2Meters.xMeters, feeder2Meters.yMeters, isFeederAtSecondary ? chaosGreenTransparent : chaosOrangeTransparent);
+
+    const noteLength = 0.3556;
+    const noteWidth = 0.0508;
+    let noteStart: Coordinate | null = null;
+    if (isFeederAtSecondary) {
+      noteStart = feeder2Coordinate;
+    } else if (isFeederAtPrimary) {
+      noteStart = feeder1Coordinate;
+    }
+    
+    if (!!noteStart) {
+      ch.drawLine(context, noteStart, launcherAngleDegreesConverted + 180, noteLength, chaosOrange, ch.metersToPixels(noteWidth));
+    }
+    ch.drawRoundRectangle(context, feederPrimary, feederPrimary.heightPixels / 3);
+    ch.drawRoundRectangle(context, feederSecondary, feederSecondary.heightPixels / 3);
 
     // static lift beam
     const beamLength = 0.547852;
