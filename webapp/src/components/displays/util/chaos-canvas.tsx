@@ -13,6 +13,10 @@ export class CanvasHelper {
     getXCoordinate = (meters: number, widthPixels: number = 0) => this.metersToPixels(meters) + (this.pixelsForDisplay / 2) - (widthPixels / 2); // Center the x coordinate
     getYCoordinate = (meters: number, heightPixels: number = 0) => this.pixelsForDisplay - this.metersToPixels(meters) - heightPixels; // base the y on the bottom of the shape
 
+    pixelsToMeters = (pixels: number) => pixels / this.pixelsPerMeter;
+    getXMeters = (pixels: number) => this.pixelsToMeters(pixels - (this.pixelsForDisplay / 2));
+    getYMeters= (pixels: number) => this.pixelsToMeters(this.pixelsForDisplay - pixels);
+
     createShape = (widthMeters: number, heightMeters: number, xMeters: number, yMeters: number, color: string) => {
         const heightPixels = this.metersToPixels(heightMeters);
         const widthPixels = this.metersToPixels(widthMeters);
@@ -69,6 +73,13 @@ export class CanvasHelper {
 
     getCoordinateFromMeters(xMeters: number, yMeters: number, widthPixels: number = 0, heightPixels: number = 0): Coordinate {
         return new Coordinate(this.getXCoordinate(xMeters, widthPixels), this.getYCoordinate(yMeters, heightPixels));
+    }
+
+    getMetersFromCoordinate(coordinate: Coordinate) {
+        return {
+            xMeters: this.getXMeters(coordinate.xPixels),
+            yMeters: this.getYMeters(coordinate.yPixels),
+        }
     }
 }
 
