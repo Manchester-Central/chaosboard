@@ -26,7 +26,7 @@ export function AutoStepsDisplay({ entry, historyManager }: AutoStepsProps) {
     }, [value]);
 
     if (value && !Array.isArray(value)) {
-        return <SimpleDisplay entry={entry}></SimpleDisplay>;
+        return <SimpleDisplay entry={entry} historyManager={historyManager}></SimpleDisplay>;
     }
 
     const getStyle = (key: string) => {

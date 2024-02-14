@@ -47,7 +47,7 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
         case DisplayType.Arm2023:
             return <ArmDisplay2023 entry={entry}/>;
         default:
-            return <SimpleDisplay entry={entry}/>;
+            return <SimpleDisplay entry={entry} historyManager={historyManager}/>;
     }
 
 }
