@@ -122,7 +122,8 @@ export function get2024AutoCommands() {
         new AutoCommand("drive", get2024DriveArgs()),
         new AutoCommand("resetPosition", get2024DriveArgs()),
         new AutoCommand("launch"),
-        new AutoCommand("intake")
+        new AutoCommand("intake"),
+        new AutoCommand("driveAndIntake", get2024DriveArgs())
 
     ].sort((a, b) => a.commandName.localeCompare(b.commandName));
 }
