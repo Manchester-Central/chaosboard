@@ -44,6 +44,16 @@ function get2024DriveArgs() {
     ].slice();
 } 
 
+function get2024SimpleControlArgs() {
+    return [
+        new AutoCommandArgument("IntakePower", ArgType.NUMBER, "The duty cycle power of the intake"),
+        new AutoCommandArgument("FeederPower", ArgType.NUMBER, "The duty cycle power of the feeder"),
+        new AutoCommandArgument("FlywheelPower", ArgType.NUMBER, "The duty cycle power of the flywheels"),
+        new AutoCommandArgument("TiltPower", ArgType.NUMBER, "The duty cycle power of the tilt"),
+        new AutoCommandArgument("LiftPower", ArgType.NUMBER, "The duty cycle power of the lift"),
+    ].slice();
+} 
+
 function get2023DriveArgs() {
     return [
         new AutoCommandArgument("DrivePose", ArgType.CUSTOM, "The existing drive pose (overrides x, y, and angle)", get2023Poses().getPoseNames()),
@@ -127,7 +137,7 @@ export function get2024AutoCommands() {
         new AutoCommand("driveAndIntakeSimple", get2024DriveArgs()),
         new AutoCommand("flyWheelOn"),
         new AutoCommand("flyWheelAndFeederOn"),
-        new AutoCommand("tiltDown")
-
+        new AutoCommand("tiltDown"),
+        new AutoCommand("simpleControl", get2024SimpleControlArgs()),
     ].sort((a, b) => a.commandName.localeCompare(b.commandName));
 }
