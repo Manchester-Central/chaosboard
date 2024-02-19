@@ -5,6 +5,7 @@ import './App.css';
 import BoardContainerWrapper from './components/board-container';
 import NtContainer from './components/nt-container';
 import NTModal from './components/nt-modal';
+import NTConnectionDisplay from './components/nt-connection-display';
 
 function App() {
   return (
@@ -15,10 +16,11 @@ function App() {
             <img src="/ChaosLogo.png" height="30" className="d-inline-block align-top me-1" alt=""></img>
             <span>Board</span>
           </a>
-          <NTModal></NTModal>
+          <NTConnectionDisplay />
+          <NTModal />
         </div>
       </nav>
-      <BoardContainerWrapper></BoardContainerWrapper>
+      <BoardContainerWrapper />
     </NtContainer>
   );
 }
