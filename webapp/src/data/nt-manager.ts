@@ -84,10 +84,15 @@ export default class NTManager {
   private onNewValueSubject = new Subject<NTEntry>();
   onNewValue = this.onNewValueSubject.asObservable();
   private ws: WebSocket;
+  private lastUpdateTime: Date | undefined;
 
   constructor() {
     this.ws = new WebSocket('ws://localhost:13102');
     this.connect();
+  }
+
+  getlastUpdatedTime() {
+    return this.lastUpdateTime;
   }
 
   getState() {
@@ -127,6 +132,7 @@ export default class NTManager {
         //console.warn(`can't parse socket data:`, event, error);
         return;
       }
+      this.lastUpdateTime = new Date();
       let update = data.networkTableUpdate;
       let isNewEntry = false;
       let entry = this.entries.get(update.key) ?? (() => {

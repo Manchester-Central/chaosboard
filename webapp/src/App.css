@@ -26,3 +26,25 @@
   background-color: #cbe0d2;
   color: white;
 }
+
+.blink {
+  animation: blink-animation 2s infinite;
+}
+
+@keyframes blink-animation {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
