@@ -69,7 +69,6 @@ function BoardContainer({ manager }: BoardContainerProps) {
             setBoxes(
                 { ...boxes }
             )
-            preserveBoxes();
         })
     })
 
@@ -90,7 +89,6 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 },
             }),
         )
-        preserveBoxes();
     }, [boxes, setBoxes]);
 
     const boxResized = useCallback((event: any, direction: any, ref: HTMLElement) => {
@@ -102,7 +100,6 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 },
             }),
         )
-        preserveBoxes();
     }, [boxes, setBoxes]);
 
     const typeChanged = useCallback((key: string, type?: DisplayType) => {
@@ -113,17 +110,16 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 },
             }),
         )
-        preserveBoxes();
-    }, []);
+    }, [boxes, setBoxes]);
 
     const boxDeleted = useCallback((key: string) => {
-        delete boxes[key]
-        preserveBoxes();
+        const newBoxes = { ...boxes };
+        delete newBoxes[key];
         setBoxes(
-            { ...boxes }
+            newBoxes,
         )
         setSettingsModalBoxState(undefined)
-    }, []);
+    }, [boxes, setBoxes]);
 
     const [settingsModalBoxState, setSettingsModalBoxState] = useState<BoxState | undefined>();
 
@@ -149,6 +145,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 return (
                     <Rnd
                         id={key}
+                        key={key}
                         dragHandleClassName='handle'
                         default={{
                             x: left,
