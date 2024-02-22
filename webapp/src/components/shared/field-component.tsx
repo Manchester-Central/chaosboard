@@ -6,10 +6,11 @@ import { gameData } from "../../data/game-specific-data";
 
 type CanvasProps = {
     drivePose: DrivePose | null,
+    secondaryDrivePoses?: DrivePose[],
     onPoseManuallyMoved?: (pose: DrivePose) => void,
     translationToleranceMeters?: number;
 };
-export function FieldCanvas({ drivePose, onPoseManuallyMoved, translationToleranceMeters }: CanvasProps) {
+export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePoses, translationToleranceMeters }: CanvasProps) {
     const isPoseEditable = !!onPoseManuallyMoved;
     const fieldWidthMeters = gameData.fieldWidthMeters;
     const robotWidthMeters = gameData.robotWidthMeters;
@@ -25,6 +26,30 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, translationToleran
     const pixelsToMeters = (pixels: number) => {
         return pixels / metersToPixelsRatio;
     }
+
+    const getPoseCss = (pose: DrivePose, addBackground: boolean, isEditable: boolean, opacity: number) => {
+        let css: CSSProperties = {
+            position: 'absolute',
+            bottom: metersToPixel(pose.yMeters) - metersToPixel(robotWidthMeters / 2),
+            left: metersToPixel(pose.xMeters) - metersToPixel(robotHeightMeters / 2),
+            width: metersToPixel(robotWidthMeters),
+            height: metersToPixel(robotHeightMeters),
+            opacity: opacity,
+            transform: `rotate(${360 - pose.rotationDegrees}deg)`,
+            zIndex: 50,
+            cursor: isEditable ? 'pointer' : 'default',
+            fontSize: 40,
+        };
+        if (addBackground) {
+            css = {
+                ...css,
+                backgroundImage: `url(${gameData.robotImagePath})`,
+                backgroundSize: '100% 100%',
+                backgroundRepeat: 'no-repeat',
+            };
+        }
+        return css;
+    };
 
     useEffect(() => {
         if(!divRef?.current) {
@@ -43,20 +68,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, translationToleran
         if (!drivePose) {
             return;
         }
-        const newState: CSSProperties = {
-            position: 'absolute',
-            bottom: metersToPixel(drivePose.yMeters) - metersToPixel(robotWidthMeters / 2),
-            left: metersToPixel(drivePose.xMeters) - metersToPixel(robotHeightMeters / 2),
-            width: metersToPixel(robotWidthMeters),
-            height: metersToPixel(robotHeightMeters),
-            backgroundImage: `url(${gameData.robotImagePath})`,
-            backgroundSize: '100% 100%',
-            backgroundRepeat: 'no-repeat',
-            transform: `rotate(${360 - drivePose.rotationDegrees}deg)`,
-            zIndex: 50,
-            cursor: isPoseEditable ? 'pointer' : 'default',
-        };
-        setRobotPosition(newState);
+        setRobotPosition(getPoseCss(drivePose, true, isPoseEditable, 1.0));
 
         const toleranceM = translationToleranceMeters ?? 0.03;
         const toleranceState: CSSProperties = {
@@ -71,7 +83,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, translationToleran
             pointerEvents: 'none',
         }
         setTolerancePosition(toleranceState);
-    }, [drivePose, metersToPixelsRatio])
+    }, [drivePose, secondaryDrivePoses, metersToPixelsRatio])
 
     const roundNumber = (aNumber: number) => {
         return +aNumber.toFixed(3);
@@ -104,6 +116,16 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, translationToleran
     return <>
         <div style={{position: 'relative', backgroundColor: 'white'}} ref={divRef} onDragOver={onRobotDragged} onDrop={onRobotDropped}>
             <img src={gameData.fieldImagePath} style={{ width: '100%', textAlign: 'center', opacity: 0.5 }}></img>
+            {
+                secondaryDrivePoses?.map((pose, index) => {
+                    const poseCss = getPoseCss(pose, true, false, 0.5);
+                    const titleCss = getPoseCss(pose, false, false, 1.0);
+                    return <>
+                        <div style={poseCss} title={`secondary pose - x: ${pose?.xMeters}m, y: ${pose?.yMeters}m, rotation: ${pose?.rotationDegrees}deg`}></div>
+                        <div style={titleCss}>{index + 1}</div>
+                    </>;
+                })
+            }
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={isPoseEditable} onDrag={event => event?.preventDefault()}></div>
             <div style={tolerancePosition}></div>
         </div>
