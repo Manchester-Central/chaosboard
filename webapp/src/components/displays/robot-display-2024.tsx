@@ -57,7 +57,7 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     ch.drawRoundRectangle(context, basePlate, basePlate.heightPixels / 3);
 
     // Lift Height
-    liftHeightMeters = liftHeightMeters ?? 0.35;
+    liftHeightMeters = (liftHeightMeters ?? 0.05) + 0.15;
     const liftWidth = 0.050800;
     const liftAngleDegrees = 80;
     const liftEnd = ch.drawLine(context, ch.getCoordinateFromMeters(-0.091682, 0.071550), liftAngleDegrees, liftHeightMeters, chaosAltGreen, ch.metersToPixels(liftWidth));

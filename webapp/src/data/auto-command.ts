@@ -41,6 +41,8 @@ function get2024DriveArgs() {
         new AutoCommandArgument("X", ArgType.NUMBER, "The x position of the robot in meters"),
         new AutoCommandArgument("Y", ArgType.NUMBER, "The x position of the robot in meters"),
         new AutoCommandArgument("Angle", ArgType.NUMBER, "The angle of the robot in degrees"),
+        new AutoCommandArgument("TranslationTolerance", ArgType.NUMBER, "The allowable translation tolerance in meters"),
+        new AutoCommandArgument("MaxPercentSpeed", ArgType.NUMBER, "The (-1.0, 1.0) max speed of the robot"),
     ].slice();
 } 
 
