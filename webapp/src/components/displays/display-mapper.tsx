@@ -10,6 +10,7 @@ import { StreamDisplay } from './stream-display';
 import { TempDisplay } from './temp-display';
 import { RobotDisplay2024 } from './robot-display-2024';
 import { ChooserDisplay } from './chooser-display';
+import { PIDFTunerDisplay } from './pidf-tuner';
 
 export enum DisplayType {
     Simple = 'Simple',
@@ -20,6 +21,7 @@ export enum DisplayType {
     Stream = 'Stream',
     AutoSteps = 'Auto Steps',
     Temp = 'Temp',
+    PIDFTuner = 'PID/PIDF Tuner',
     Robot2024 = 'Robot - 2024',
     Arm2023 = '[Old] Arm - 2023',
 }
@@ -46,6 +48,8 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
             return <AutoStepsDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.Temp:
             return <TempDisplay entry={entry}/>;
+        case DisplayType.PIDFTuner:
+            return <PIDFTunerDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.Robot2024:
             return <RobotDisplay2024 entry={entry}/>;
         case DisplayType.Arm2023:
@@ -60,6 +64,11 @@ export function getDefaultType(entry: NTEntry) {
     switch(entry?.latestValue?.valueType) {
         case 'boolean':
             return DisplayType.Bool;
+        case 'double':
+            if (entry?.key.toLowerCase().includes("tuner")) {
+                return DisplayType.PIDFTuner;
+            }
+            return DisplayType.Simple;
         case 'double[]':
             let numberArrayValue = entry?.latestValue.value as number[];
             if(numberArrayValue.length === 3) {
@@ -89,5 +98,5 @@ export function getDefaultType(entry: NTEntry) {
 }
 
 export function shouldUseParentTitle(type: DisplayType) {
-    return [DisplayType.Chooser].includes(type);
+    return [DisplayType.Chooser, DisplayType.PIDFTuner].includes(type);
 }

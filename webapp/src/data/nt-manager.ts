@@ -42,7 +42,8 @@ export class NTEntry {
   }
 
   getSibling(siblingTitle: string) {
-    return this.ntManager.getEntry(this.key.replace(this.title, '') + siblingTitle);
+    const parentKey = this.key.substring(0, this.key.lastIndexOf('/'));
+    return this.ntManager.getEntry(`${parentKey}/${siblingTitle}`);
   }
 }
 
