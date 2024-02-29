@@ -37,7 +37,7 @@ export function ChooserDisplay({ entry, historyManager }: ChooserDisplayProps) {
     }
 
     return (
-        <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
+        <div style={{ width: '100%', textAlign: 'center', position: 'absolute', zIndex: 500 }} className={'p-2'}>
             <Select options={selectOptions} value={selectedOption} onChange={option => updateSelected(option?.value, historyManager)}/>
         </div>
     );
