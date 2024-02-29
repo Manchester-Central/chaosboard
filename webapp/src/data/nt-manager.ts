@@ -38,6 +38,10 @@ export class NTEntry {
       value
     })
   }
+
+  getSibling(siblingTitle: string) {
+    return this.ntManager.getEntry(this.key.replace(this.title, '') + siblingTitle);
+  }
 }
 
 export class NetworkTableTree {

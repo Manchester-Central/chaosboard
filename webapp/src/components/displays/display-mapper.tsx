@@ -9,10 +9,12 @@ import { SimpleDisplay } from './simple-text-display';
 import { StreamDisplay } from './stream-display';
 import { TempDisplay } from './temp-display';
 import { RobotDisplay2024 } from './robot-display-2024';
+import { ChooserDisplay } from './chooser-display';
 
 export enum DisplayType {
     Simple = 'Simple',
     Bool = 'Boolean',
+    Chooser = 'Chooser',
     Color = 'Color',
     Field = 'Field',
     Stream = 'Stream',
@@ -32,6 +34,8 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
     switch(selectedDisplayType) {
         case DisplayType.Bool:
             return <BoolDisplay entry={entry}/>;
+        case DisplayType.Chooser:
+            return <ChooserDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.Color:
             return <ColorDisplay entry={entry}/>;
         case DisplayType.Field:
@@ -72,6 +76,9 @@ export function getDefaultType(entry: NTEntry) {
             let stringValue = entry?.latestValue.value as string;
             if(stringValue.startsWith('#')) {
                 return DisplayType.Color;
+            }
+            if (entry?.key.toLowerCase().includes("chooser")) {
+                return DisplayType.Chooser;
             }
             return DisplayType.Simple;
         case 'string[]':
