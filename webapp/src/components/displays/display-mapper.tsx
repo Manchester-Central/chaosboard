@@ -87,3 +87,7 @@ export function getDefaultType(entry: NTEntry) {
             return DisplayType.Simple;
     }
 }
+
+export function shouldUseParentTitle(type: DisplayType) {
+    return [DisplayType.Chooser].includes(type);
+}

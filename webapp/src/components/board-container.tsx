@@ -8,7 +8,7 @@ import { Textfit } from 'react-textfit';
 import '../App.css';
 import { onWidgetAdded } from '../components/nt-modal';
 import NTManager from '../data/nt-manager';
-import { DisplayMapper, DisplayType, getDefaultType } from './displays/display-mapper';
+import { DisplayMapper, DisplayType, getDefaultType, shouldUseParentTitle } from './displays/display-mapper';
 import { NtContextObject } from './nt-container';
 import Modal from 'react-modal';
 import Select from 'react-select'
@@ -56,11 +56,13 @@ function BoardContainer({ manager }: BoardContainerProps) {
 
     useEffect(() => {
         onWidgetAdded.subscribe(entry => {
+            const defaultType = getDefaultType(entry);
+            const title = shouldUseParentTitle(defaultType) ? entry.parentTitle : entry.title;
             boxes[entry.key] = {
                 key: entry.key,
                 left: 50,
                 top: 50,
-                title: entry.title,
+                title: title,
                 zIndex: getNextZIndex(),
                 height: '150px',
                 width: '200px',
@@ -103,10 +105,15 @@ function BoardContainer({ manager }: BoardContainerProps) {
     }, [boxes, setBoxes]);
 
     const typeChanged = useCallback((key: string, type?: DisplayType) => {
+        if(!type) {
+            return;
+        }
+        const entry = manager.getEntry(key);
+        const title = shouldUseParentTitle(type) ? entry?.parentTitle : entry?.title;
         setBoxes(
             update(boxes, {
                 [key]: {
-                    $merge: { displayType: type },
+                    $merge: { displayType: type, title },
                 },
             }),
         )
