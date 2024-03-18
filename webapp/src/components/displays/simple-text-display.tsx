@@ -30,7 +30,7 @@ export function SimpleDisplay({ entry, historyManager }: SimpleDisplayProps) {
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
             <Textfit mode="single" max={60} onClick={onClick}>
-                {isEditable ? <small style={{fontSize: '0.3em', opacity: 0.6}}><FontAwesomeIcon icon={faPenToSquare} /></small> : <></>} {value?.toString().replaceAll(',', ', ')}
+                {isEditable ? <small style={{fontSize: '0.3em', opacity: 0.6}}><FontAwesomeIcon icon={faPenToSquare} /></small> : <></>} <pre>{value?.toString().replaceAll(',', '\n')}</pre>
             </Textfit>
         </div>
     );
