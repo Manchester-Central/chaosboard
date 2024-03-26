@@ -18,6 +18,7 @@ import ntcore
 import asyncio
 import websockets
 import json
+from pathlib import Path
 
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -26,14 +27,30 @@ argParser.add_argument("-s", "--source", help="the host to connect to network ta
 args = argParser.parse_args()
 print("args=%s" % args)
 
-nst = ntcore.NetworkTableInstance.getDefault()
 inst = ntcore.NetworkTableInstance.getDefault()
 
 inst.startClient4("chaosboard")
 
 inst.setServer(args.source)
-# inst.setServer("localhost")
-# inst.setServer("10.1.31.2")
+
+baseAutoPath = '../2024-Crescendo/src/main/deploy/pathplanner/'
+def getAutos():
+    autos = {}
+    for child in Path(baseAutoPath + '/autos').iterdir():
+        if child.is_file():
+            autos[child.name.replace('.auto', '')] = json.loads(child.read_text())
+    paths = {}
+    for child in Path(baseAutoPath + '/paths').iterdir():
+        if child.is_file():
+            paths[child.name.replace('.path', '')] = json.loads(child.read_text())
+    autoConfigs = {}
+    autoConfigs["autos"] = autos
+    autoConfigs["paths"] = paths
+    return autoConfigs
+
+
+def createAutosMessage(autos):
+    return json.dumps({"autoConfigs": autos})
 
 def createNtMessage(topic, value, valueType):
     return json.dumps({"networkTableUpdate": {
@@ -51,6 +68,8 @@ async def register(websocket):
     CONNECTIONS.add(websocket)
     try:
         topics = inst.getTopics()
+        autos = getAutos()
+        websockets.broadcast(CONNECTIONS, createAutosMessage(autos))
         for topic in topics:
             value = inst.getEntry(topic.getName()).getValue().value();
             await websocket.send(createNtMessage(topic.getName(), value, topic.getTypeString()))
@@ -60,15 +79,8 @@ async def register(websocket):
                 topic = inst.getTopic(update['key'])
                 entry = inst.getEntry(topic.getName())
                 entry.setValue(update['value'])
-                response = {"networkTableUpdate": {
-                        "key": topic.getName(),
-                        "value": entry.getValue().value(),
-                        "valueType": topic.getTypeString()
-                        # type,
-                        # id,
-                        # flags
-                    }}
-                websockets.broadcast(CONNECTIONS, json.dumps(response))
+                response = createNtMessage(topic.getName(), entry.getValue().value(), topic.getTypeString())
+                websockets.broadcast(CONNECTIONS, response)
             except:
                 print("message parsing failed")
                 traceback.print_exc()
@@ -93,15 +105,8 @@ async def main():
             # periodically read from the queue
             for event in poller.readQueue():
                 try: 
-                    response = {"networkTableUpdate": {
-                        "key": event.data.topic.getName(),
-                        "value": event.data.value.value(),
-                        "valueType": event.data.topic.getTypeString()
-                        # type,
-                        # id,
-                        # flags
-                    }}
-                    websockets.broadcast(CONNECTIONS, json.dumps(response))
+                    response = createNtMessage(event.data.topic.getName(), event.data.value.value(), event.data.topic.getTypeString())
+                    websockets.broadcast(CONNECTIONS, response)
                 except:
                     print("count not read event")
                     print(event)

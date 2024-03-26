@@ -1,4 +1,5 @@
 import { BehaviorSubject, Subject } from 'rxjs';
+import { AutoConfig } from './auto-config';
 
 export interface NTUpdate {
   key: string;
@@ -92,6 +93,7 @@ export default class NTManager {
   onNewValue = this.onNewValueSubject.asObservable();
   private ws: WebSocket;
   private lastUpdateTime: Date | undefined;
+  public static autoConfigs: AutoConfig; // TODO: improve
 
   constructor() {
     this.ws = new WebSocket('ws://localhost:13102');
@@ -132,7 +134,12 @@ export default class NTManager {
       let data: NTUpdateMessage;
       try {
         data = JSON.parse(event.data);
-        if (!data.networkTableUpdate) {
+        if((data as any).autoConfigs) {
+          console.log(data);
+          NTManager.autoConfigs = (data as any).autoConfigs;
+          return;
+        }
+        else if (!data.networkTableUpdate) {
           throw 'socket data does not have networkTableUpdate property';
         }
       } catch (error) {

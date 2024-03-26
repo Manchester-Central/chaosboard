@@ -3,20 +3,37 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { createRef, useState, CSSProperties, useEffect } from "react";
 import { DrivePose } from "../../data/drive-pose";
 import { gameData } from "../../data/game-specific-data";
+import { Bezier } from 'bezier-js';
+import { AutoCombined, AutoPath, Position } from "../../data/auto-config";
+
+const points = [{x: 1.442, y: 5.57}, {x: 1.32, y: 5.58}, {x: 2.17, y: 4.95}, {x: 2.073, y: 4.95}].map(p => ({x: p.x, y: -p.y}));
+const bez = new Bezier(points);
+console.log(bez.toSVG());
+
+const getBezierCurve = (path: AutoPath) => {
+    // let waypoints = path.waypoints.map(w => [w.prevControl, w.anchor, w.nextControl].filter(w => !!w)).reduce((p, accum) => accum.concat(p), []) as Position[];
+    let waypoints = [path.waypoints[0].anchor, path.waypoints[0].nextControl, path.waypoints[path.waypoints.length - 1].prevControl, path.waypoints[path.waypoints.length - 1].anchor].filter(w => !!w) as Position[];
+    waypoints = waypoints.map(p => ({x: p.x, y: -p.y}));
+    return new Bezier(waypoints);
+}
 
 type CanvasProps = {
     drivePose: DrivePose | null,
     secondaryDrivePoses?: DrivePose[],
     onPoseManuallyMoved?: (pose: DrivePose) => void,
-    translationToleranceMeters?: number;
+    translationToleranceMeters?: number,
+    auto?: AutoCombined;
 };
-export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePoses, translationToleranceMeters }: CanvasProps) {
+export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secondaryDrivePoses: secondaryPosesIn, translationToleranceMeters, auto }: CanvasProps) {
     const isPoseEditable = !!onPoseManuallyMoved;
     const fieldWidthMeters = gameData.fieldWidthMeters;
+    const fieldHeightMeters = gameData.fieldHeightMeters;
     const robotWidthMeters = gameData.robotWidthMeters;
     const robotHeightMeters = gameData.robotHeightMeters;
     let divRef = createRef<HTMLDivElement>();
 
+    let [drivePose, setDrivePose] = useState<DrivePose | null>(drivePoseIn);
+    let [secondaryDrivePoses, setSecondaryDrivePoses] = useState<DrivePose[] | undefined>(secondaryPosesIn);
     let [robotPosition, setRobotPosition] = useState<CSSProperties>({});
     let [tolerancePosition, setTolerancePosition] = useState<CSSProperties>({});
     let [metersToPixelsRatio, setMetersToPixelsRatio] = useState<number>(1);
@@ -36,9 +53,9 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePose
             height: metersToPixel(robotHeightMeters),
             opacity: opacity,
             transform: `rotate(${360 - pose.rotationDegrees}deg)`,
-            zIndex: 50,
+            zIndex: 5,
             cursor: isEditable ? 'pointer' : 'default',
-            fontSize: 40,
+            fontSize: metersToPixel(0.5),
         };
         if (addBackground) {
             css = {
@@ -52,6 +69,28 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePose
     };
 
     useEffect(() => {
+        if(!auto) {
+            return;
+        }
+        const paths = (auto.commands.filter(x => typeof x !== 'string') as AutoPath[]);
+        const firstPath = paths[0];
+        if(!firstPath) {
+            return;
+        }
+        const startingPose = auto.auto.startingPose ? auto.auto.startingPose.position : firstPath?.waypoints[0].anchor;
+        const startingAngle = firstPath.previewStartingState.rotation;
+        console.log(startingPose, startingAngle);
+        const pose = new DrivePose('', startingPose.x, startingPose.y, startingAngle);
+        setDrivePose(pose);
+
+        const allEndpoints = paths.map(p => {
+            const finalPoint = p.waypoints[p.waypoints.length - 1].anchor;
+            return new DrivePose('', finalPoint.x, finalPoint.y, p.goalEndState.rotation);
+        })
+        setSecondaryDrivePoses([pose].concat(allEndpoints));
+    }, [auto]);
+
+    useEffect(() => {
         if(!divRef?.current) {
             return;
         }
@@ -62,7 +101,9 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePose
         return () => {
             divRef.current && observer.unobserve(divRef.current)
         }
-      }, [divRef])
+      }, [divRef]);
+
+    useEffect(() => setDrivePose(drivePoseIn), [drivePoseIn]);
 
     useEffect(() => {
         if (!drivePose) {
@@ -128,6 +169,9 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePose
             }
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={isPoseEditable} onDrag={event => event?.preventDefault()}></div>
             <div style={tolerancePosition}></div>
+            <svg viewBox={`0 -${fieldHeightMeters} ${fieldWidthMeters} ${fieldHeightMeters}`} style={{position: 'absolute', top: 0, left: 0}}>
+                {auto?.commands.filter(a => typeof a !== 'string').map(path => getBezierCurve(path as AutoPath)).map(bz => <path vectorEffect="non-scaling-stroke" d={bz.toSVG()} style={{fill: 'transparent', stroke: 'lightgreen', strokeWidth: '3px', strokeLinejoin: 'round', strokeDasharray: '10, 5'}}></path>)}
+            </svg>
         </div>
         {isPoseEditable ? <div>
             <button className="btn btn-light" onClick={() => manualButtonPressed(0, 0.1, 0)}><FontAwesomeIcon icon={faArrowUp}/></button>
