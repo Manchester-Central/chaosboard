@@ -1,3 +1,5 @@
+import { BehaviorSubject } from "rxjs"
+
 export interface Position {
     x: number,
     y: number,
@@ -68,16 +70,29 @@ export interface AutoCombined {
     commands: (string | AutoPath)[]
 }
 
-export function loadAuto(autoConfig: AutoConfig, autoName: string): AutoCombined | undefined {
-    console.log(autoConfig);
-    if(!autoConfig) {
-        return undefined;
+export class AutoManager {
+    private static autoConfig: AutoConfig;
+    private constructor() {};
+    
+    private static onUpdatedSubject = new BehaviorSubject<AutoConfig | undefined>(undefined);
+    public static onUpdated = this.onUpdatedSubject.asObservable();
+
+    public static cacheConfig(autoConfig: AutoConfig) {
+        this.autoConfig = autoConfig;
+        this.onUpdatedSubject.next(autoConfig);
     }
-    const auto = autoConfig.autos[autoName];
-    if(!auto) {
-        return undefined;
+
+    public static loadAuto(autoName: string): AutoCombined | undefined {
+        console.log(this.autoConfig);
+        if(!this.autoConfig) {
+            return undefined;
+        }
+        const auto = this.autoConfig.autos[autoName];
+        if(!auto) {
+            return undefined;
+        }
+        console.log(auto);
+        const commands = auto.command.data.commands.map(c => c.type === "named" ? c.data.name : this.autoConfig.paths[c.data.pathName]);
+        return {auto, commands};
     }
-    console.log(auto);
-    const commands = auto.command.data.commands.map(c => c.type === "named" ? c.data.name : autoConfig.paths[c.data.pathName]);
-    return {auto, commands};
 }

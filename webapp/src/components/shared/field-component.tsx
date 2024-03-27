@@ -11,8 +11,8 @@ const bez = new Bezier(points);
 console.log(bez.toSVG());
 
 const getBezierCurve = (path: AutoPath) => {
-    // let waypoints = path.waypoints.map(w => [w.prevControl, w.anchor, w.nextControl].filter(w => !!w)).reduce((p, accum) => accum.concat(p), []) as Position[];
     let waypoints = [path.waypoints[0].anchor, path.waypoints[0].nextControl, path.waypoints[path.waypoints.length - 1].prevControl, path.waypoints[path.waypoints.length - 1].anchor].filter(w => !!w) as Position[];
+    // TODO: handle mid point waypoints
     waypoints = waypoints.map(p => ({x: p.x, y: -p.y}));
     return new Bezier(waypoints);
 }
@@ -170,7 +170,7 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={isPoseEditable} onDrag={event => event?.preventDefault()}></div>
             <div style={tolerancePosition}></div>
             <svg viewBox={`0 -${fieldHeightMeters} ${fieldWidthMeters} ${fieldHeightMeters}`} style={{position: 'absolute', top: 0, left: 0}}>
-                {auto?.commands.filter(a => typeof a !== 'string').map(path => getBezierCurve(path as AutoPath)).map(bz => <path vectorEffect="non-scaling-stroke" d={bz.toSVG()} style={{fill: 'transparent', stroke: 'lightgreen', strokeWidth: '3px', strokeLinejoin: 'round', strokeDasharray: '10, 5'}}></path>)}
+                {auto?.commands.filter(a => typeof a !== 'string').map(path => getBezierCurve(path as AutoPath)).map(bz => <path vectorEffect="non-scaling-stroke" d={bz.toSVG()} style={{zIndex: 88, fill: 'transparent', stroke: 'lightgreen', strokeWidth: '3px', strokeLinejoin: 'round', strokeDasharray: '10, 5'}}></path>)}
             </svg>
         </div>
         {isPoseEditable ? <div>
