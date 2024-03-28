@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import Select from 'react-select';
 import { HistoryManager } from '../../data/history-manager';
-import NTManager, { NTEntry } from '../../data/nt-manager';
+import { NTEntry } from '../../data/nt-manager';
 import useNtEntry from '../../hooks/useNtEntry';
 import { FieldCanvas } from '../shared/field-component';
-import { DrivePose } from '../../data/drive-pose';
 import Modal from 'react-modal';
-import { faSleigh, faWarning } from '@fortawesome/free-solid-svg-icons';
+import { faWarning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useAutos from '../../hooks/useAutos';
 import { AutoCombined, AutoManager } from '../../data/auto-config';

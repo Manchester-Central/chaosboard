@@ -33,6 +33,7 @@ inst.startClient4("chaosboard")
 
 inst.setServer(args.source)
 
+# TODO: handle this as config, as well as the IP in package.json
 baseAutoPath = '../2024-Crescendo/src/main/deploy/pathplanner/'
 def getAutos():
     autos = {}

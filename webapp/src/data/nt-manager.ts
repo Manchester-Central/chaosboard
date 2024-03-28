@@ -138,7 +138,6 @@ export default class NTManager {
       try {
         data = JSON.parse(event.data);
         if((data as any).autoConfigs) {
-          console.log(data);
           AutoManager.cacheConfig((data as any).autoConfigs);
           return;
         }

@@ -6,7 +6,6 @@ function useAutos() {
 
   useEffect(() => {
       const sub = AutoManager.onUpdated.subscribe(config => {
-        console.log(config);
         setAutos(config);
       });
       return () => sub?.unsubscribe();

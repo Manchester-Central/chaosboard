@@ -83,7 +83,6 @@ export class AutoManager {
     }
 
     public static loadAuto(autoName: string): AutoCombined | undefined {
-        console.log(this.autoConfig);
         if(!this.autoConfig) {
             return undefined;
         }
@@ -91,7 +90,6 @@ export class AutoManager {
         if(!auto) {
             return undefined;
         }
-        console.log(auto);
         const commands = auto.command.data.commands.map(c => c.type === "named" ? c.data.name : this.autoConfig.paths[c.data.pathName]);
         return {auto, commands};
     }

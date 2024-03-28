@@ -6,14 +6,10 @@ import { gameData } from "../../data/game-specific-data";
 import { Bezier } from 'bezier-js';
 import { AutoCombined, AutoPath, Position } from "../../data/auto-config";
 
-const points = [{x: 1.442, y: 5.57}, {x: 1.32, y: 5.58}, {x: 2.17, y: 4.95}, {x: 2.073, y: 4.95}].map(p => ({x: p.x, y: -p.y}));
-const bez = new Bezier(points);
-console.log(bez.toSVG());
-
 const getBezierCurve = (path: AutoPath) => {
     let waypoints = [path.waypoints[0].anchor, path.waypoints[0].nextControl, path.waypoints[path.waypoints.length - 1].prevControl, path.waypoints[path.waypoints.length - 1].anchor].filter(w => !!w) as Position[];
     // TODO: handle mid point waypoints
-    waypoints = waypoints.map(p => ({x: p.x, y: -p.y}));
+    waypoints = waypoints.map(p => ({x: p.x, y: -p.y})); // Inverting y to handle a top-left (0, 0) origin
     return new Bezier(waypoints);
 }
 
@@ -24,7 +20,7 @@ type CanvasProps = {
     translationToleranceMeters?: number,
     auto?: AutoCombined;
 };
-export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secondaryDrivePoses, translationToleranceMeters, auto }: CanvasProps) {
+export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePoses, translationToleranceMeters, auto }: CanvasProps) {
     const isPoseEditable = !!onPoseManuallyMoved;
     const fieldWidthMeters = gameData.fieldWidthMeters;
     const fieldHeightMeters = gameData.fieldHeightMeters;
@@ -32,7 +28,6 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
     const robotHeightMeters = gameData.robotHeightMeters;
     let divRef = createRef<HTMLDivElement>();
 
-    let [drivePose, setDrivePose] = useState<DrivePose | null>(drivePoseIn);
     let [autoDrivePoses, setAutoDrivePoses] = useState<DrivePose[] | undefined>([]);
     let [robotPosition, setRobotPosition] = useState<CSSProperties>({});
     let [tolerancePosition, setTolerancePosition] = useState<CSSProperties>({});
@@ -90,7 +85,6 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
         }
         const startingPose = auto.auto.startingPose ? auto.auto.startingPose.position : firstPath?.waypoints[0].anchor;
         const startingAngle = firstPath.previewStartingState.rotation;
-        console.log(startingPose, startingAngle);
         const pose = new DrivePose('', startingPose.x, startingPose.y, startingAngle);
 
         const allEndpoints = paths.map(p => {
@@ -112,8 +106,6 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
             divRef.current && observer.unobserve(divRef.current)
         }
       }, [divRef]);
-
-    useEffect(() => setDrivePose(drivePoseIn), [drivePoseIn]);
 
     useEffect(() => {
         if (!drivePose) {
