@@ -60,8 +60,8 @@ export function PathPlannerPickerDisplay({ entry, historyManager }: PathPlannerP
     }, [autos, filter]);
 
     useEffect(() => {
-        console.log(autoConfig);
-        setAuto(AutoManager.loadAuto(entry?.latestValue?.value ?? ''));
+        const autoName = entry?.latestValue?.value ?? '';
+        setAuto(AutoManager.loadAuto(autoName));
     }, [active, autoConfig]);
 
     const isKnownAuto = (name: string) => {

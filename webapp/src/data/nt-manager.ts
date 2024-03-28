@@ -46,6 +46,10 @@ export class NTEntry {
     const parentKey = this.key.substring(0, this.key.lastIndexOf('/'));
     return this.ntManager.getEntry(`${parentKey}/${siblingTitle}`);
   }
+
+  getOtherEntry(key: string) {
+    return this.ntManager.getEntry(key);
+  }
 }
 
 export class NetworkTableTree {

@@ -24,7 +24,7 @@ type CanvasProps = {
     translationToleranceMeters?: number,
     auto?: AutoCombined;
 };
-export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secondaryDrivePoses: secondaryPosesIn, translationToleranceMeters, auto }: CanvasProps) {
+export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secondaryDrivePoses, translationToleranceMeters, auto }: CanvasProps) {
     const isPoseEditable = !!onPoseManuallyMoved;
     const fieldWidthMeters = gameData.fieldWidthMeters;
     const fieldHeightMeters = gameData.fieldHeightMeters;
@@ -33,7 +33,7 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
     let divRef = createRef<HTMLDivElement>();
 
     let [drivePose, setDrivePose] = useState<DrivePose | null>(drivePoseIn);
-    let [secondaryDrivePoses, setSecondaryDrivePoses] = useState<DrivePose[] | undefined>(secondaryPosesIn);
+    let [autoDrivePoses, setAutoDrivePoses] = useState<DrivePose[] | undefined>([]);
     let [robotPosition, setRobotPosition] = useState<CSSProperties>({});
     let [tolerancePosition, setTolerancePosition] = useState<CSSProperties>({});
     let [metersToPixelsRatio, setMetersToPixelsRatio] = useState<number>(1);
@@ -44,7 +44,7 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
         return pixels / metersToPixelsRatio;
     }
 
-    const getPoseCss = (pose: DrivePose, addBackground: boolean, isEditable: boolean, opacity: number) => {
+    const getPoseCss = (pose: DrivePose, useBackgroundImage: boolean, isEditable: boolean, opacity: number, bgColor?: string) => {
         let css: CSSProperties = {
             position: 'absolute',
             bottom: metersToPixel(pose.yMeters) - metersToPixel(robotWidthMeters / 2),
@@ -55,15 +55,24 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
             transform: `rotate(${360 - pose.rotationDegrees}deg)`,
             zIndex: 5,
             cursor: isEditable ? 'pointer' : 'default',
+            color: 'white',
             fontSize: metersToPixel(0.5),
+            textAlign: 'center',
         };
-        if (addBackground) {
+        if (useBackgroundImage) {
             css = {
                 ...css,
                 backgroundImage: `url(${gameData.robotImagePath})`,
                 backgroundSize: '100% 100%',
                 backgroundRepeat: 'no-repeat',
             };
+        } 
+        
+        if(!!bgColor) {
+            css = {
+                ...css,
+                backgroundColor: bgColor,
+            }
         }
         return css;
     };
@@ -81,13 +90,12 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
         const startingAngle = firstPath.previewStartingState.rotation;
         console.log(startingPose, startingAngle);
         const pose = new DrivePose('', startingPose.x, startingPose.y, startingAngle);
-        setDrivePose(pose);
 
         const allEndpoints = paths.map(p => {
             const finalPoint = p.waypoints[p.waypoints.length - 1].anchor;
             return new DrivePose('', finalPoint.x, finalPoint.y, p.goalEndState.rotation);
         })
-        setSecondaryDrivePoses([pose].concat(allEndpoints));
+        setAutoDrivePoses([pose].concat(allEndpoints));
     }, [auto]);
 
     useEffect(() => {
@@ -160,10 +168,22 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
             {
                 secondaryDrivePoses?.map((pose, index) => {
                     const poseCss = getPoseCss(pose, true, false, 0.5);
-                    const titleCss = getPoseCss(pose, false, false, 1.0);
+                    const titleCss = getPoseCss(pose, false, false, 1.0, '#00580547');
+                    const title = `secondary pose - x: ${pose?.xMeters}m, y: ${pose?.yMeters}m, rotation: ${pose?.rotationDegrees}deg`;
                     return <>
-                        <div style={poseCss} title={`secondary pose - x: ${pose?.xMeters}m, y: ${pose?.yMeters}m, rotation: ${pose?.rotationDegrees}deg`}></div>
-                        <div style={titleCss}>{index + 1}</div>
+                        <div style={poseCss} title={title}></div>
+                        <div style={titleCss} title={title}>{index + 1}</div>
+                    </>;
+                })
+            }
+            {
+                autoDrivePoses?.map((pose, index) => {
+                    const poseCss = getPoseCss(pose, true, false, 0.5);
+                    const titleCss = getPoseCss(pose, false, false, 1.0, '#ffa02a61');
+                    const title = `auto pose - x: ${pose?.xMeters}m, y: ${pose?.yMeters}m, rotation: ${pose?.rotationDegrees}deg`;
+                    return <>
+                        <div style={poseCss} title={title}></div>
+                        <div style={titleCss} title={title}>{index + 1}</div>
                     </>;
                 })
             }

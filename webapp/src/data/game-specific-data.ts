@@ -10,6 +10,7 @@ interface IGameSpecificData {
     robotImagePath: string;
     drivePoses: DrivePoses;
     autoCommands: AutoCommand[];
+    pathPlannerNtKey?: string;
 }
 
 class GameData2023 implements IGameSpecificData {
@@ -32,6 +33,7 @@ class GameData2024 implements IGameSpecificData {
     robotImagePath = '/2024/robot.png';
     drivePoses = get2024Poses();
     autoCommands = get2024AutoCommands();
+    pathPlannerNtKey = '/SmartDashboard/Auto Chooser/active';
 }
 
 // FUTURE: Change this when preparing for a new robot - should either clean up old years or have a way of switching
