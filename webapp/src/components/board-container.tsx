@@ -24,6 +24,7 @@ interface BoxState {
     title: string
     zIndex: number
     displayType: DisplayType
+    config?: any
 }
 
 const settingsModalStyle: Modal.Styles = {
@@ -66,7 +67,8 @@ function BoardContainer({ manager }: BoardContainerProps) {
                 zIndex: getNextZIndex(),
                 height: '150px',
                 width: '200px',
-                displayType: getDefaultType(entry)
+                displayType: getDefaultType(entry),
+                config: {}
             }
             setBoxes(
                 { ...boxes }
@@ -119,16 +121,27 @@ function BoardContainer({ manager }: BoardContainerProps) {
         )
     }, [boxes, setBoxes]);
 
+    const configChanged = useCallback((key: string, config?: any) => {
+        if(!config) {
+            return;
+        }
+        const entry = manager.getEntry(key);
+        setBoxes(
+            update(boxes, {
+                [key]: {
+                    $merge: { config: config },
+                },
+            }),
+        )
+    }, [boxes, setBoxes]);
+
     const boxDeleted = useCallback((key: string) => {
         const newBoxes = { ...boxes };
         delete newBoxes[key];
         setBoxes(
             newBoxes,
         )
-        setSettingsModalBoxState(undefined)
     }, [boxes, setBoxes]);
-
-    const [settingsModalBoxState, setSettingsModalBoxState] = useState<BoxState | undefined>();
 
     Modal.setAppElement('#root')
 
@@ -155,7 +168,7 @@ function BoardContainer({ manager }: BoardContainerProps) {
                         minWidth={150}
                         minheight={250}
                     >
-                        <EntryCard entry={entry} boxState={box} historyManager={historyManager} boxDeleted={boxDeleted} typeChanged={typeChanged}/>
+                        <EntryCard entry={entry} boxState={box} config={box.config} historyManager={historyManager} boxDeleted={boxDeleted} configChanged={configChanged} typeChanged={typeChanged}/>
                     </Rnd>
                 )
             })}
@@ -177,17 +190,18 @@ type EntryCardProps = {
     entry: NTEntry | undefined,
     historyManager: HistoryManager,
     boxState: BoxState,
+    config: any,
+    configChanged: (key: string, config?: any) => void,
     typeChanged: (key: string, type?: DisplayType) => void,
     boxDeleted: (key: string) => void,
 }
-function EntryCard({entry, historyManager, boxState, boxDeleted, typeChanged} : EntryCardProps) {
+function EntryCard({entry, historyManager, boxState, config, boxDeleted, configChanged, typeChanged} : EntryCardProps) {
 
     const [title, setTitle] = useState(boxState.title);
     const [displayType, setDisplayType] = useState(boxState.displayType);
     const [key, setKey] = useState(boxState.key);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [config, setConfig] = useState({...boxState} as any);
-    const onConfigChange = (newConfig: any) => setConfig(newConfig);
+    const onConfigChange = (newConfig: any) => configChanged(key, newConfig);
     const [configComponent, setConfigComponent] = useState(getConfigComponent(displayType, config, onConfigChange));
 
     const settingsButton = <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setIsModalOpen(true)}/>;
@@ -201,7 +215,7 @@ function EntryCard({entry, historyManager, boxState, boxDeleted, typeChanged} : 
 
     useEffect(() => {
         setConfigComponent(getConfigComponent(displayType, config, onConfigChange));
-    }, [displayType]);
+    }, [displayType, boxState]);
 
     return <>
         <div className='card' style={{ height: '100%' }}>

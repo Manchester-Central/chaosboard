@@ -17,13 +17,15 @@ type FieldDisplayConfigProps = {
 export function FieldDisplayConfig({config, onChange}: FieldDisplayConfigProps) {
     const [showAuto, setShowAuto] = useState(config.showAuto ?? false);
 
-    const onClick = () => {
+    const onShowAutoClick = () => {
         const newResult = !showAuto;
         setShowAuto(newResult);
         onChange({...config, showAuto: newResult});
     }
 
-    return <button className="btn btn-light" onClick={onClick}>Show Autos?</button>;
+    return <div className='d-grid gap-2'>
+            <button className={`btn ${showAuto ? 'btn-success' : 'btn-secondary'} btn-block`} onClick={onShowAutoClick}>{showAuto ? 'Showing Autos' : 'Not Showing Autos'}</button>
+        </div>;
 }
 
 type FieldDisplayProps = {
