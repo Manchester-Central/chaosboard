@@ -4,7 +4,7 @@ import { ArmDisplay2023 } from './old/arm-display-2023';
 import { AutoStepsDisplay } from './auto-steps.display';
 import { BoolDisplay } from './bool-display';
 import { ColorDisplay } from './color-display';
-import { FieldDisplay } from './field-display';
+import { FieldDisplay, FieldDisplayConfig, FieldDisplayConfigData } from './field-display';
 import { SimpleDisplay } from './simple-text-display';
 import { StreamDisplay } from './stream-display';
 import { TempDisplay } from './temp-display';
@@ -31,9 +31,10 @@ export enum DisplayType {
 type DisplayMapperProps = {
     entry: NTEntry | undefined,
     selectedDisplayType: DisplayType,
-    historyManager: HistoryManager
+    historyManager: HistoryManager,
+    configs: any,
 };
-export function DisplayMapper({ entry, selectedDisplayType, historyManager }: DisplayMapperProps) {
+export function DisplayMapper({ entry, selectedDisplayType, historyManager, configs }: DisplayMapperProps) {
 
     switch(selectedDisplayType) {
         case DisplayType.Bool:
@@ -43,7 +44,7 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
         case DisplayType.Color:
             return <ColorDisplay entry={entry}/>;
         case DisplayType.Field:
-            return <FieldDisplay entry={entry}/>;
+            return <FieldDisplay entry={entry} configs={configs}/>;
         case DisplayType.Stream:
             return <StreamDisplay entry={entry}/>;
         case DisplayType.AutoSteps:
@@ -106,4 +107,14 @@ export function getDefaultType(entry: NTEntry) {
 
 export function shouldUseParentTitle(type: DisplayType) {
     return [DisplayType.Chooser, DisplayType.PathPlanner, DisplayType.PIDFTuner].includes(type);
+}
+
+export function getConfigComponent(type: DisplayType | undefined, config: any, onChanged: (newConfig: any) => void) {
+
+    switch(type) {
+        case DisplayType.Field:
+            return <FieldDisplayConfig config={config} onChange={onChanged}/>;
+        default:
+            return undefined;
+    }
 }

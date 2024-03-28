@@ -6,10 +6,31 @@ import { FieldCanvas } from '../shared/field-component';
 import { gameData } from '../../data/game-specific-data';
 import { AutoManager } from '../../data/auto-config';
 
+export type FieldDisplayConfigData = {
+    showAuto?: boolean;
+}
+
+type FieldDisplayConfigProps = {
+    config: FieldDisplayConfigData,
+    onChange: (newConfig: any) => void,
+};
+export function FieldDisplayConfig({config, onChange}: FieldDisplayConfigProps) {
+    const [showAuto, setShowAuto] = useState(config.showAuto ?? false);
+
+    const onClick = () => {
+        const newResult = !showAuto;
+        setShowAuto(newResult);
+        onChange({...config, showAuto: newResult});
+    }
+
+    return <button className="btn btn-light" onClick={onClick}>Show Autos?</button>;
+}
+
 type FieldDisplayProps = {
     entry: NTEntry | undefined,
+    configs?: FieldDisplayConfigData,
 };
-export function FieldDisplay({ entry }: FieldDisplayProps) {
+export function FieldDisplay({ entry, configs }: FieldDisplayProps) {
     const [value, updateValue] = useNtEntry(entry);
     const [activeAutoName] = useNtEntry(entry?.getOtherEntry(gameData.pathPlannerNtKey ?? ''));
     const [drivePose, setDrivePose] = useState<DrivePose | null>(null);
@@ -17,8 +38,12 @@ export function FieldDisplay({ entry }: FieldDisplayProps) {
     const [activeAuto, setActiveAuto] = useState(AutoManager.loadAuto(activeAutoName));
 
     useEffect(() => {
+        if (!configs?.showAuto) {
+            setActiveAuto(undefined);
+            return;
+        }
         setActiveAuto(AutoManager.loadAuto(activeAutoName));
-    }, [activeAutoName])
+    }, [activeAutoName, configs])
 
     useEffect(() => {
         if (!value || !Array.isArray(value)) {

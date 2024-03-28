@@ -7,8 +7,8 @@ import { DraggableData, Rnd } from 'react-rnd';
 import { Textfit } from 'react-textfit';
 import '../App.css';
 import { onWidgetAdded } from '../components/nt-modal';
-import NTManager from '../data/nt-manager';
-import { DisplayMapper, DisplayType, getDefaultType, shouldUseParentTitle } from './displays/display-mapper';
+import NTManager, { NTEntry } from '../data/nt-manager';
+import { DisplayMapper, DisplayType, getConfigComponent, getDefaultType, shouldUseParentTitle } from './displays/display-mapper';
 import { NtContextObject } from './nt-container';
 import Modal from 'react-modal';
 import Select from 'react-select'
@@ -132,23 +132,12 @@ function BoardContainer({ manager }: BoardContainerProps) {
 
     Modal.setAppElement('#root')
 
-    const selectOptions = Object.values(DisplayType)
-        .map(type => ({value: type as DisplayType, label: type}))
-        .sort((aType, bType) => 
-            // This logic places all types starting with a [ to the end
-            aType.label.startsWith("[") !== bType.label.startsWith("[")
-            ? 1
-            : aType.label.localeCompare(bType.label)
-        );
-
     return (
         <div>
             {Object.keys(boxes).map((key) => {
                 const box = boxes[key];
                 const { left, top, title, zIndex, height, width, displayType } = box;
                 const entry = manager.getEntry(key);
-                const settingsButton = <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setSettingsModalBoxState(box)}/>;
-                const historyButton = !!entry && historyManager.hasHistory(entry) ? <HistoryModal entry={entry} historyManager={historyManager}></HistoryModal> : <></>;
                 return (
                     <Rnd
                         id={key}
@@ -166,35 +155,86 @@ function BoardContainer({ manager }: BoardContainerProps) {
                         minWidth={150}
                         minheight={250}
                     >
-                        <div className='card' style={{ height: '100%' }}>
-                            <div className='handle card-header' style={{ cursor: 'move', width: '100%' }}>
-                                <Textfit mode="single" max={20}>
-                                    {settingsButton} {historyButton} {title} <small style={{fontSize: '0.5em'}}>{key}</small>
-                                </Textfit>
-                            </div>
-                            <div className='card-body p-0' style={{overflowY: 'auto'}}>
-                                <DisplayMapper entry={entry} selectedDisplayType={displayType} historyManager={historyManager}></DisplayMapper>
-                            </div>
-                        </div>
+                        <EntryCard entry={entry} boxState={box} historyManager={historyManager} boxDeleted={boxDeleted} typeChanged={typeChanged}/>
                     </Rnd>
                 )
             })}
-            <Modal isOpen={!!settingsModalBoxState} style={settingsModalStyle} >
-                <h1>
-                    {settingsModalBoxState?.title}
-                </h1>
-                <div>
-                    <Select options={selectOptions} defaultValue={selectOptions.find(x => x.value === settingsModalBoxState?.displayType)} onChange={value => typeChanged(settingsModalBoxState?.key ?? '', value?.value)}/>
-                </div>
-                <div className="d-grid gap-2 d-md-block mt-5">
-                    <button onClick={() => boxDeleted(settingsModalBoxState?.key ?? '')} className='btn btn-block btn-danger'>Delete</button>
-                    <button onClick={() => setSettingsModalBoxState(undefined)} className='btn btn-chaos ms-2'>Close</button>
-                </div>
-                
-            </Modal>
         </div>
 
     )
+}
+
+const selectOptions = Object.values(DisplayType)
+.map(type => ({value: type as DisplayType, label: type}))
+.sort((aType, bType) => 
+    // This logic places all types starting with a [ to the end
+    aType.label.startsWith("[") !== bType.label.startsWith("[")
+    ? 1
+    : aType.label.localeCompare(bType.label)
+);
+
+type EntryCardProps = {
+    entry: NTEntry | undefined,
+    historyManager: HistoryManager,
+    boxState: BoxState,
+    typeChanged: (key: string, type?: DisplayType) => void,
+    boxDeleted: (key: string) => void,
+}
+function EntryCard({entry, historyManager, boxState, boxDeleted, typeChanged} : EntryCardProps) {
+
+    const [title, setTitle] = useState(boxState.title);
+    const [displayType, setDisplayType] = useState(boxState.displayType);
+    const [key, setKey] = useState(boxState.key);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [config, setConfig] = useState({...boxState} as any);
+    const onConfigChange = (newConfig: any) => setConfig(newConfig);
+    const [configComponent, setConfigComponent] = useState(getConfigComponent(displayType, config, onConfigChange));
+
+    const settingsButton = <FontAwesomeIcon icon={faGear} style={{cursor: 'pointer'}} onClick={() => setIsModalOpen(true)}/>;
+    const historyButton = !!entry && historyManager.hasHistory(entry) ? <HistoryModal entry={entry} historyManager={historyManager}></HistoryModal> : <></>;
+
+    useEffect(() => {
+        setTitle(boxState.title);
+        setDisplayType(boxState.displayType);
+        setKey(boxState.key);
+    }, [boxState])
+
+    useEffect(() => {
+        setConfigComponent(getConfigComponent(displayType, config, onConfigChange));
+    }, [displayType]);
+
+    return <>
+        <div className='card' style={{ height: '100%' }}>
+            <div className='handle card-header' style={{ cursor: 'move', width: '100%' }}>
+                <Textfit mode="single" max={20}>
+                    {settingsButton} {historyButton} {title} <small style={{fontSize: '0.5em'}}>{entry?.key}</small>
+                </Textfit>
+            </div>
+            <div className='card-body p-0' style={{overflowY: 'auto'}}>
+                <DisplayMapper entry={entry} selectedDisplayType={displayType} historyManager={historyManager} configs={config}></DisplayMapper>
+            </div>
+        </div>
+        
+        <Modal isOpen={isModalOpen} style={settingsModalStyle} >
+            <h1>
+                {title}
+            </h1>
+            <hr />
+            <div>
+                <Select options={selectOptions} defaultValue={selectOptions.find(x => x.value === displayType)} onChange={value => typeChanged(key ?? '', value?.value)}/>
+            </div>
+            <hr />
+            {configComponent ? <div>
+                {configComponent}
+                <hr />
+            </div> : <></>}
+            <div className="d-grid gap-2 d-md-block">
+                <button onClick={() => boxDeleted(key)} className='btn btn-block btn-danger'>Delete</button>
+                <button onClick={() => setIsModalOpen(false)} className='btn btn-chaos ms-2'>Close</button>
+            </div>
+            
+        </Modal>
+    </>;
 }
 
 function BoardContainerWrapper() {
