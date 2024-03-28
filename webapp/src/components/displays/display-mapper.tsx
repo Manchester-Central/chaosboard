@@ -11,6 +11,7 @@ import { TempDisplay } from './temp-display';
 import { RobotDisplay2024 } from './robot-display-2024';
 import { ChooserDisplay } from './chooser-display';
 import { PIDFTunerDisplay } from './pidf-tuner';
+import { PathPlannerPickerDisplay } from './path-planner-picker';
 
 export enum DisplayType {
     Simple = 'Simple',
@@ -21,6 +22,7 @@ export enum DisplayType {
     Stream = 'Stream',
     AutoSteps = 'Auto Steps',
     Temp = 'Temp',
+    PathPlanner = 'PathPlanner Picker',
     PIDFTuner = 'PID/PIDF Tuner',
     Robot2024 = 'Robot - 2024',
     Arm2023 = '[Old] Arm - 2023',
@@ -50,6 +52,8 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
             return <TempDisplay entry={entry}/>;
         case DisplayType.PIDFTuner:
             return <PIDFTunerDisplay entry={entry} historyManager={historyManager}/>;
+        case DisplayType.PathPlanner:
+            return <PathPlannerPickerDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.Robot2024:
             return <RobotDisplay2024 entry={entry}/>;
         case DisplayType.Arm2023:
@@ -86,6 +90,9 @@ export function getDefaultType(entry: NTEntry) {
             if(stringValue.startsWith('#')) {
                 return DisplayType.Color;
             }
+            if (entry?.key.toLowerCase().includes("chooser") && entry?.key.toLowerCase().includes("auto")) {
+                return DisplayType.PathPlanner;
+            }
             if (entry?.key.toLowerCase().includes("chooser")) {
                 return DisplayType.Chooser;
             }
@@ -98,5 +105,5 @@ export function getDefaultType(entry: NTEntry) {
 }
 
 export function shouldUseParentTitle(type: DisplayType) {
-    return [DisplayType.Chooser, DisplayType.PIDFTuner].includes(type);
+    return [DisplayType.Chooser, DisplayType.PathPlanner, DisplayType.PIDFTuner].includes(type);
 }
