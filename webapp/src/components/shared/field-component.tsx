@@ -79,11 +79,13 @@ export function FieldCanvas({ drivePose: drivePoseIn, onPoseManuallyMoved, secon
 
     useEffect(() => {
         if(!auto) {
+            setAutoDrivePoses([]);
             return;
         }
         const paths = (auto.commands.filter(x => typeof x !== 'string') as AutoPath[]);
         const firstPath = paths[0];
         if(!firstPath) {
+            setAutoDrivePoses([]);
             return;
         }
         const startingPose = auto.auto.startingPose ? auto.auto.startingPose.position : firstPath?.waypoints[0].anchor;
