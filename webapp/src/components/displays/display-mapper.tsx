@@ -12,9 +12,11 @@ import { RobotDisplay2024 } from './robot-display-2024';
 import { ChooserDisplay } from './chooser-display';
 import { PIDFTunerDisplay } from './pidf-tuner';
 import { PathPlannerPickerDisplay } from './path-planner-picker';
+import { NumberDisplay, NumberDisplayConfig } from './number-display';
 
 export enum DisplayType {
     Simple = 'Simple',
+    Number = 'Number',
     Bool = 'Boolean',
     Chooser = 'Chooser',
     Color = 'Color',
@@ -39,6 +41,8 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager, conf
     switch(selectedDisplayType) {
         case DisplayType.Bool:
             return <BoolDisplay entry={entry}/>;
+        case DisplayType.Number:
+            return <NumberDisplay entry={entry} historyManager={historyManager} configs={configs}/>;
         case DisplayType.Chooser:
             return <ChooserDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.Color:
@@ -69,11 +73,12 @@ export function getDefaultType(entry: NTEntry) {
     switch(entry?.latestValue?.valueType) {
         case 'boolean':
             return DisplayType.Bool;
+        case 'integer':
         case 'double':
             if (entry?.key.toLowerCase().includes("tuner")) {
                 return DisplayType.PIDFTuner;
             }
-            return DisplayType.Simple;
+            return DisplayType.Number;
         case 'double[]':
             let numberArrayValue = entry?.latestValue.value as number[];
             if(numberArrayValue.length === 3) {
@@ -112,6 +117,8 @@ export function shouldUseParentTitle(type: DisplayType) {
 export function getConfigComponent(type: DisplayType | undefined, config: any, onChanged: (newConfig: any) => void) {
 
     switch(type) {
+        case DisplayType.Number:
+            return <NumberDisplayConfig config={config} onChange={onChanged}/>;
         case DisplayType.Field:
             return <FieldDisplayConfig config={config} onChange={onChanged}/>;
         default:
