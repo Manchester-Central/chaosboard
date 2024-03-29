@@ -1,4 +1,5 @@
 import { BehaviorSubject, Subject } from 'rxjs';
+import { AutoConfig, AutoManager } from './auto-config';
 
 export interface NTUpdate {
   key: string;
@@ -44,6 +45,10 @@ export class NTEntry {
   getSibling(siblingTitle: string) {
     const parentKey = this.key.substring(0, this.key.lastIndexOf('/'));
     return this.ntManager.getEntry(`${parentKey}/${siblingTitle}`);
+  }
+
+  getOtherEntry(key: string) {
+    return this.ntManager.getEntry(key);
   }
 }
 
@@ -132,7 +137,11 @@ export default class NTManager {
       let data: NTUpdateMessage;
       try {
         data = JSON.parse(event.data);
-        if (!data.networkTableUpdate) {
+        if((data as any).autoConfigs) {
+          AutoManager.cacheConfig((data as any).autoConfigs);
+          return;
+        }
+        else if (!data.networkTableUpdate) {
           throw 'socket data does not have networkTableUpdate property';
         }
       } catch (error) {

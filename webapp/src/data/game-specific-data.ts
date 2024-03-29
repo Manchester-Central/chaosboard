@@ -3,16 +3,19 @@ import { DrivePoses, get2023Poses, get2024Poses } from "./drive-pose";
 
 interface IGameSpecificData {
     fieldWidthMeters: number;
+    fieldHeightMeters: number;
     robotWidthMeters: number;
     robotHeightMeters: number;
     fieldImagePath: string;
     robotImagePath: string;
     drivePoses: DrivePoses;
     autoCommands: AutoCommand[];
+    pathPlannerNtKey?: string;
 }
 
 class GameData2023 implements IGameSpecificData {
     fieldWidthMeters = 16.522;
+    fieldHeightMeters = 8.210;
     robotWidthMeters = 0.851;
     robotHeightMeters = 0.863;
     fieldImagePath = '/2023/field.png';
@@ -23,12 +26,14 @@ class GameData2023 implements IGameSpecificData {
 
 class GameData2024 implements IGameSpecificData {
     fieldWidthMeters = 16.512;
+    fieldHeightMeters = 8.210;
     robotWidthMeters = 0.990;
     robotHeightMeters = 0.876;
     fieldImagePath = '/2024/field.png';
     robotImagePath = '/2024/robot.png';
     drivePoses = get2024Poses();
     autoCommands = get2024AutoCommands();
+    pathPlannerNtKey = '/SmartDashboard/Auto Chooser/active';
 }
 
 // FUTURE: Change this when preparing for a new robot - should either clean up old years or have a way of switching
