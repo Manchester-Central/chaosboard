@@ -11,7 +11,7 @@ import { TempDisplay } from './temp-display';
 import { RobotDisplay2024 } from './robot-display-2024';
 import { ChooserDisplay } from './chooser-display';
 import { PIDFTunerDisplay } from './pidf-tuner';
-import { PathPlannerPickerDisplay } from './path-planner-picker';
+import { PathPlannerPickerDisplay, PathPlannerPickerDisplayConfig } from './path-planner-picker';
 import { NumberDisplay, NumberDisplayConfig } from './number-display';
 
 export enum DisplayType {
@@ -58,7 +58,7 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager, conf
         case DisplayType.PIDFTuner:
             return <PIDFTunerDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.PathPlanner:
-            return <PathPlannerPickerDisplay entry={entry} historyManager={historyManager}/>;
+            return <PathPlannerPickerDisplay entry={entry} historyManager={historyManager} configs={configs}/>;
         case DisplayType.Robot2024:
             return <RobotDisplay2024 entry={entry}/>;
         case DisplayType.Arm2023:
@@ -121,6 +121,8 @@ export function getConfigComponent(type: DisplayType | undefined, config: any, o
             return <NumberDisplayConfig config={config} onChange={onChanged}/>;
         case DisplayType.Field:
             return <FieldDisplayConfig config={config} onChange={onChanged}/>;
+        case DisplayType.PathPlanner:
+            return <PathPlannerPickerDisplayConfig config={config} onChange={onChanged}/>;
         default:
             return undefined;
     }

@@ -38,8 +38,8 @@ const settingsModalStyle: Modal.Styles = {
       bottom: 'auto',
       marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
-      height: '800px',
-      width: '600px',
+      height: '75vh',
+      width: '50vw',
     },
 }
 
