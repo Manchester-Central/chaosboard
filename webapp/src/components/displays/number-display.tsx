@@ -5,7 +5,7 @@ import { HistoryManager } from '../../data/history-manager';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { clampNumber } from './util/num-utils';
+import { clampNumber, withSigFigs } from './util/num-utils';
 
 const DefaultSigFigs = 5;
 
@@ -56,7 +56,7 @@ export function NumberDisplay({ entry, historyManager, configs }: NumberDisplayP
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
             <Textfit mode="single" max={60} onClick={onClick}>
-                {isEditable ? <small style={{fontSize: '0.3em', opacity: 0.6}}><FontAwesomeIcon icon={faPenToSquare} /></small> : <></>} {Intl.NumberFormat('en-US', {maximumSignificantDigits: configs?.sigFigs ?? DefaultSigFigs}).format(value)}
+                {isEditable ? <small style={{fontSize: '0.3em', opacity: 0.6}}><FontAwesomeIcon icon={faPenToSquare} /></small> : <></>} {withSigFigs(value, configs?.sigFigs ?? DefaultSigFigs)}
             </Textfit>
         </div>
     );

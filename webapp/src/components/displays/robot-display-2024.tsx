@@ -5,6 +5,7 @@ import {
   CanvasHelper,
   Coordinate,
 } from './util/chaos-canvas';
+import { withSigFigs } from './util/num-utils';
 
 const chaosGreen = '#134122';
 const chaosAltGreen = '#9fc7ad';
@@ -38,7 +39,7 @@ type ArmDisplayProps = {
 export function RobotDisplay2024({ entry }: ArmDisplayProps) {
   const [ch] = useState(new CanvasHelper(1.5));
 
-  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, feederPower, launcherPower, feederAtPrimaryDbl, feederAtSecondaryDbl]: (number | undefined)[], frameCount: number) => {
+  const draw = (context: CanvasRenderingContext2D, [intakePower, liftHeightMeters, launcherAngleDegrees, feederPower, launcherRpm, feederAtPrimaryDbl, feederAtSecondaryDbl, feederAtTertiaryDbl, feederAtIntakeDbl]: (number | undefined)[], frameCount: number) => {
     const isFeederAtPrimary = !!feederAtPrimaryDbl;
     const isFeederAtSecondary = !!feederAtSecondaryDbl;
 
@@ -57,10 +58,12 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     ch.drawRoundRectangle(context, basePlate, basePlate.heightPixels / 3);
 
     // Lift Height
-    liftHeightMeters = (liftHeightMeters ?? 0.05) + 0.15;
+    const adjustedliftHeightMeters = (liftHeightMeters ?? 0.05) + 0.35;
     const liftWidth = 0.050800;
     const liftAngleDegrees = 80;
-    const liftEnd = ch.drawLine(context, ch.getCoordinateFromMeters(-0.091682, 0.071550), liftAngleDegrees, liftHeightMeters, chaosAltGreen, ch.metersToPixels(liftWidth));
+    const liftEnd = ch.drawLine(context, ch.getCoordinateFromMeters(-0.091682, 0.071550), liftAngleDegrees, adjustedliftHeightMeters, chaosAltGreen, ch.metersToPixels(liftWidth));
+
+    ch.addTextAtPoint(context, liftEnd.plusMeters(ch, -0.3, 0), `${withSigFigs(liftHeightMeters ?? 0, 2)} m`, 'black', 30);
 
     // lift platform
     const liftPlatformAngleDegrees = -11.826423;
@@ -68,12 +71,16 @@ export function RobotDisplay2024({ entry }: ArmDisplayProps) {
     const platformWidth = 0.02;
     const platformEnd = ch.drawLine(context, liftEnd, liftPlatformAngleDegrees, platformLength, 'silver', ch.metersToPixels(platformWidth));
 
+    ch.addTextAtPoint(context, platformEnd.plusMeters(ch, 0.15, 0), `${withSigFigs(launcherAngleDegrees ?? 0, 3)}°`, 'black', 30);
+
     // launcher
     const launcherAngleDegreesConverted = 180 - (launcherAngleDegrees ?? 0);
     const launcherLength = 0.333747;
     const launcherWidth = 0.1;
-    const launcherColor = getDirectionColor(launcherPower ?? 0, frameCount);
-    ch.drawLine(context, platformEnd, launcherAngleDegreesConverted, launcherLength, launcherColor, ch.metersToPixels(launcherWidth));
+    const launcherColor = getDirectionColor((launcherRpm ?? 0) / 4000, frameCount);
+    const launcherEnd = ch.drawLine(context, platformEnd, launcherAngleDegreesConverted, launcherLength, launcherColor, ch.metersToPixels(launcherWidth));
+
+    ch.addTextAtPoint(context, launcherEnd.plusMeters(ch, 0.20, 0.1), `${withSigFigs(launcherRpm ?? 0, 3)} rpm`, 'black', 30);
 
     // feeder
     const feederAngle = launcherAngleDegreesConverted - 200;
