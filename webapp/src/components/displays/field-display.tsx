@@ -12,7 +12,7 @@ export type FieldDisplayConfigData = {
 
 type FieldDisplayConfigProps = {
     config: FieldDisplayConfigData,
-    onChange: (newConfig: any) => void,
+    onChange: (newConfig: FieldDisplayConfigData) => void,
 };
 export function FieldDisplayConfig({config, onChange}: FieldDisplayConfigProps) {
     const [showAuto, setShowAuto] = useState(config.showAuto ?? false);

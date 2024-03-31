@@ -20,6 +20,10 @@ export function SimpleDisplay({ entry, historyManager }: SimpleDisplayProps) {
             return;
         }
         const newValue = prompt(`What's the new value for ${entry?.key}?`);
+        if (newValue === null) {
+            return;
+        }
+
         if (entry?.latestValue?.valueType === 'double') {
             updateValue(+(newValue ?? 0), historyManager);
         } else if (entry?.latestValue?.valueType === 'string') {
@@ -30,7 +34,7 @@ export function SimpleDisplay({ entry, historyManager }: SimpleDisplayProps) {
     return (
         <div style={{ width: '100%', textAlign: 'center' }} className={'p-2'}>
             <Textfit mode="single" max={60} onClick={onClick}>
-                {isEditable ? <small style={{fontSize: '0.3em', opacity: 0.6}}><FontAwesomeIcon icon={faPenToSquare} /></small> : <></>} <pre>{value?.toString().replaceAll(',', '\n')}</pre>
+                {isEditable ? <small style={{fontSize: '0.3em', opacity: 0.6}}><FontAwesomeIcon icon={faPenToSquare} /></small> : <></>} {value?.toString().split(',').map((row: string) => <span>{row}<br/></span>)}
             </Textfit>
         </div>
     );
