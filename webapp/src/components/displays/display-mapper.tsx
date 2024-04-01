@@ -4,17 +4,19 @@ import { ArmDisplay2023 } from './old/arm-display-2023';
 import { AutoStepsDisplay } from './auto-steps.display';
 import { BoolDisplay } from './bool-display';
 import { ColorDisplay } from './color-display';
-import { FieldDisplay } from './field-display';
+import { FieldDisplay, FieldDisplayConfig, FieldDisplayConfigData } from './field-display';
 import { SimpleDisplay } from './simple-text-display';
 import { StreamDisplay } from './stream-display';
 import { TempDisplay } from './temp-display';
 import { RobotDisplay2024 } from './robot-display-2024';
 import { ChooserDisplay } from './chooser-display';
 import { PIDFTunerDisplay } from './pidf-tuner';
-import { PathPlannerPickerDisplay } from './path-planner-picker';
+import { PathPlannerPickerDisplay, PathPlannerPickerDisplayConfig } from './path-planner-picker';
+import { NumberDisplay, NumberDisplayConfig } from './number-display';
 
 export enum DisplayType {
     Simple = 'Simple',
+    Number = 'Number',
     Bool = 'Boolean',
     Chooser = 'Chooser',
     Color = 'Color',
@@ -31,19 +33,22 @@ export enum DisplayType {
 type DisplayMapperProps = {
     entry: NTEntry | undefined,
     selectedDisplayType: DisplayType,
-    historyManager: HistoryManager
+    historyManager: HistoryManager,
+    configs: any,
 };
-export function DisplayMapper({ entry, selectedDisplayType, historyManager }: DisplayMapperProps) {
+export function DisplayMapper({ entry, selectedDisplayType, historyManager, configs }: DisplayMapperProps) {
 
     switch(selectedDisplayType) {
         case DisplayType.Bool:
             return <BoolDisplay entry={entry}/>;
+        case DisplayType.Number:
+            return <NumberDisplay entry={entry} historyManager={historyManager} configs={configs}/>;
         case DisplayType.Chooser:
             return <ChooserDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.Color:
             return <ColorDisplay entry={entry}/>;
         case DisplayType.Field:
-            return <FieldDisplay entry={entry}/>;
+            return <FieldDisplay entry={entry} configs={configs}/>;
         case DisplayType.Stream:
             return <StreamDisplay entry={entry}/>;
         case DisplayType.AutoSteps:
@@ -53,7 +58,7 @@ export function DisplayMapper({ entry, selectedDisplayType, historyManager }: Di
         case DisplayType.PIDFTuner:
             return <PIDFTunerDisplay entry={entry} historyManager={historyManager}/>;
         case DisplayType.PathPlanner:
-            return <PathPlannerPickerDisplay entry={entry} historyManager={historyManager}/>;
+            return <PathPlannerPickerDisplay entry={entry} historyManager={historyManager} configs={configs}/>;
         case DisplayType.Robot2024:
             return <RobotDisplay2024 entry={entry}/>;
         case DisplayType.Arm2023:
@@ -68,11 +73,12 @@ export function getDefaultType(entry: NTEntry) {
     switch(entry?.latestValue?.valueType) {
         case 'boolean':
             return DisplayType.Bool;
+        case 'integer':
         case 'double':
             if (entry?.key.toLowerCase().includes("tuner")) {
                 return DisplayType.PIDFTuner;
             }
-            return DisplayType.Simple;
+            return DisplayType.Number;
         case 'double[]':
             let numberArrayValue = entry?.latestValue.value as number[];
             if(numberArrayValue.length === 3) {
@@ -106,4 +112,18 @@ export function getDefaultType(entry: NTEntry) {
 
 export function shouldUseParentTitle(type: DisplayType) {
     return [DisplayType.Chooser, DisplayType.PathPlanner, DisplayType.PIDFTuner].includes(type);
+}
+
+export function getConfigComponent(type: DisplayType | undefined, config: any, onChanged: (newConfig: any) => void) {
+
+    switch(type) {
+        case DisplayType.Number:
+            return <NumberDisplayConfig config={config} onChange={onChanged}/>;
+        case DisplayType.Field:
+            return <FieldDisplayConfig config={config} onChange={onChanged}/>;
+        case DisplayType.PathPlanner:
+            return <PathPlannerPickerDisplayConfig config={config} onChange={onChanged}/>;
+        default:
+            return undefined;
+    }
 }

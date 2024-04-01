@@ -55,6 +55,15 @@ export class CanvasHelper {
         context.textBaseline = "middle";
         context.fillText(text, shape.coordinate.xPixels + (shape.widthPixels / 2), shape.coordinate.yPixels + (shape.heightPixels / 2));
     }
+
+    addTextAtPoint = (context: CanvasRenderingContext2D, coordinate: Coordinate, text: string, color: string, fontSize: number) => {
+        context.beginPath();
+        context.font = `${fontSize}px Arial`;
+        context.fillStyle = color;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, coordinate.xPixels, coordinate.yPixels);
+    }
     
     drawLine = (context: CanvasRenderingContext2D, start: Coordinate, angleDegrees: number, lengthMeters: number, color: string, widthPixels: number) => {
         const startXPixel = start.xPixels;
@@ -86,6 +95,10 @@ export class CanvasHelper {
 export class Coordinate {
     constructor(public xPixels: number, public yPixels: number) {
 
+    }
+
+    plusMeters(ch: CanvasHelper, xMeters: number, yMeters: number) {
+        return new Coordinate(this.xPixels + ch.metersToPixels(xMeters), this.yPixels - ch.metersToPixels(yMeters));
     }
 }
 

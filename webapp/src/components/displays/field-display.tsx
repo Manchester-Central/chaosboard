@@ -6,10 +6,33 @@ import { FieldCanvas } from '../shared/field-component';
 import { gameData } from '../../data/game-specific-data';
 import { AutoManager } from '../../data/auto-config';
 
+export type FieldDisplayConfigData = {
+    showAuto?: boolean;
+}
+
+type FieldDisplayConfigProps = {
+    config: FieldDisplayConfigData,
+    onChange: (newConfig: FieldDisplayConfigData) => void,
+};
+export function FieldDisplayConfig({config, onChange}: FieldDisplayConfigProps) {
+    const [showAuto, setShowAuto] = useState(config.showAuto ?? false);
+
+    const onShowAutoClick = () => {
+        const newResult = !showAuto;
+        setShowAuto(newResult);
+        onChange({...config, showAuto: newResult});
+    }
+
+    return <div className='d-grid gap-2'>
+            <button className={`btn ${showAuto ? 'btn-success' : 'btn-secondary'} btn-block`} onClick={onShowAutoClick}>{showAuto ? 'Showing Autos' : 'Not Showing Autos'}</button>
+        </div>;
+}
+
 type FieldDisplayProps = {
     entry: NTEntry | undefined,
+    configs?: FieldDisplayConfigData,
 };
-export function FieldDisplay({ entry }: FieldDisplayProps) {
+export function FieldDisplay({ entry, configs }: FieldDisplayProps) {
     const [value, updateValue] = useNtEntry(entry);
     const [activeAutoName] = useNtEntry(entry?.getOtherEntry(gameData.pathPlannerNtKey ?? ''));
     const [drivePose, setDrivePose] = useState<DrivePose | null>(null);
@@ -17,8 +40,12 @@ export function FieldDisplay({ entry }: FieldDisplayProps) {
     const [activeAuto, setActiveAuto] = useState(AutoManager.loadAuto(activeAutoName));
 
     useEffect(() => {
+        if (!configs?.showAuto) {
+            setActiveAuto(undefined);
+            return;
+        }
         setActiveAuto(AutoManager.loadAuto(activeAutoName));
-    }, [activeAutoName])
+    }, [activeAutoName, configs])
 
     useEffect(() => {
         if (!value || !Array.isArray(value)) {

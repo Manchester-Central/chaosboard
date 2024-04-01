@@ -9,6 +9,29 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useAutos from '../../hooks/useAutos';
 import { AutoCombined, AutoManager } from '../../data/auto-config';
 
+
+export type PathPlannerPickerDisplayConfigData = {
+    showAuto?: boolean;
+}
+
+type PathPlannerPickerDisplayConfigProps = {
+    config: PathPlannerPickerDisplayConfigData,
+    onChange: (newConfig: PathPlannerPickerDisplayConfigData) => void,
+};
+export function PathPlannerPickerDisplayConfig({config, onChange}: PathPlannerPickerDisplayConfigProps) {
+    const [showAuto, setShowAuto] = useState(config.showAuto ?? false);
+
+    const onShowAutoClick = () => {
+        const newResult = !showAuto;
+        setShowAuto(newResult);
+        onChange({...config, showAuto: newResult});
+    }
+
+    return <div className='d-grid gap-2'>
+            <button className={`btn ${showAuto ? 'btn-success' : 'btn-secondary'} btn-block`} onClick={onShowAutoClick}>{showAuto ? 'Showing Autos' : 'Not Showing Autos'}</button>
+        </div>;
+}
+
 const mapToReactSelectOptions = (values: string[]) => {
     if (!values) {
         return [];
@@ -27,9 +50,10 @@ const modalStyle: Modal.Styles = {
 
 type PathPlannerPickerDisplayProps = {
     entry: NTEntry | undefined,
-    historyManager: HistoryManager
+    historyManager: HistoryManager,
+    configs?: PathPlannerPickerDisplayConfigData,
 };
-export function PathPlannerPickerDisplay({ entry, historyManager }: PathPlannerPickerDisplayProps) {
+export function PathPlannerPickerDisplay({ entry, historyManager, configs }: PathPlannerPickerDisplayProps) {
     const [activeEntry] = useState(entry?.getSibling('active'));
     const [optionsEntry] = useState(entry?.getSibling('options'));
     const [selectedEntry] = useState(entry?.getSibling('selected'));
@@ -71,7 +95,7 @@ export function PathPlannerPickerDisplay({ entry, historyManager }: PathPlannerP
 
     return (
         <div style={{ width: '100%', textAlign: 'center', position: 'absolute', zIndex: 500 }} className={'p-2'}>
-            <FieldCanvas drivePose={null} auto={auto}/>
+            {configs?.showAuto ? <FieldCanvas drivePose={null} auto={auto}/> : <></>}
             <button className='btn btn-light' onClick={() => setIsPicking(true)} style={{width: '100%'}}>{selectedOption?.label ?? '[Autos Not Found - View Local Autos]'}</button>
             <Modal isOpen={isPicking} style={modalStyle}>
                 <div style={{display: 'flex', gap: 10, marginBottom: 10}}>
