@@ -5,7 +5,7 @@ function useAutos() {
   const [autos, setAutos] = useState<AutoConfig | undefined>();
 
   useEffect(() => {
-      const sub = AutoManager.onUpdated.subscribe(config => {
+      const sub = AutoManager.onUpdated.subscribe(config => {  
         setAutos(config);
       });
       return () => sub?.unsubscribe();
