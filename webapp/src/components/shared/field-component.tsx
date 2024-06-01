@@ -7,10 +7,15 @@ import { Bezier } from 'bezier-js';
 import { AutoCombined, AutoPath, Position } from "../../data/auto-config";
 
 const getBezierCurve = (path: AutoPath) => {
-    let waypoints = [path.waypoints[0].anchor, path.waypoints[0].nextControl, path.waypoints[path.waypoints.length - 1].prevControl, path.waypoints[path.waypoints.length - 1].anchor].filter(w => !!w) as Position[];
-    // TODO: handle mid point waypoints
-    waypoints = waypoints.map(p => ({x: p.x, y: -p.y})); // Inverting y to handle a top-left (0, 0) origin
-    return new Bezier(waypoints);
+    try {
+        let waypoints = [path.waypoints[0].anchor, path.waypoints[0].nextControl, path.waypoints[path.waypoints.length - 1].prevControl, path.waypoints[path.waypoints.length - 1].anchor].filter(w => !!w) as Position[];
+        // TODO: handle mid point waypoints
+        waypoints = waypoints.map(p => ({x: p.x, y: -p.y})); // Inverting y to handle a top-left (0, 0) origin
+        return new Bezier(waypoints);
+    } catch {
+        console.error(`No path found for Auto`, path);
+        return null;
+    }
 }
 
 type CanvasProps = {
@@ -87,7 +92,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePose
         const startingAngle = firstPath.previewStartingState.rotation;
         const pose = new DrivePose('', startingPose.x, startingPose.y, startingAngle);
 
-        const allEndpoints = paths.map(p => {
+        const allEndpoints = paths.filter(x => !!x).map(p => {
             const finalPoint = p.waypoints[p.waypoints.length - 1].anchor;
             return new DrivePose('', finalPoint.x, finalPoint.y, p.goalEndState.rotation);
         })
@@ -184,7 +189,7 @@ export function FieldCanvas({ drivePose, onPoseManuallyMoved, secondaryDrivePose
             <div style={robotPosition} title={`${drivePose?.name} - x: ${drivePose?.xMeters}m, y: ${drivePose?.yMeters}m, rotation: ${drivePose?.rotationDegrees}deg`} draggable={isPoseEditable} onDrag={event => event?.preventDefault()}></div>
             <div style={tolerancePosition}></div>
             <svg viewBox={`0 -${fieldHeightMeters} ${fieldWidthMeters} ${fieldHeightMeters}`} style={{position: 'absolute', top: 0, left: 0}}>
-                {auto?.commands.filter(a => typeof a !== 'string').map(path => getBezierCurve(path as AutoPath)).map(bz => <path vectorEffect="non-scaling-stroke" d={bz.toSVG()} style={{zIndex: 88, fill: 'transparent', stroke: 'lightgreen', strokeWidth: '3px', strokeLinejoin: 'round', strokeDasharray: '10, 5'}}></path>)}
+                {auto?.commands.filter(a => typeof a !== 'string').map(path => getBezierCurve(path as AutoPath)).filter(x => !!x).map(bz => <path vectorEffect="non-scaling-stroke" d={bz?.toSVG()} style={{zIndex: 88, fill: 'transparent', stroke: 'lightgreen', strokeWidth: '3px', strokeLinejoin: 'round', strokeDasharray: '10, 5'}}></path>)}
             </svg>
         </div>
         {isPoseEditable ? <div>

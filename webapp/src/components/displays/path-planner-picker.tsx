@@ -78,7 +78,9 @@ export function PathPlannerPickerDisplay({ entry, historyManager, configs }: Pat
     }, [active, options, autoConfig]);
 
     useEffect(() => {
-        setFilteredAutos(new Set([...autos].filter(n => n.toLowerCase().includes(filter.toLowerCase()))));
+        var newAutos = [...autos].filter(n => n.toLowerCase().includes(filter.toLowerCase()));
+        newAutos.sort((a, b) => a.localeCompare(b))
+        setFilteredAutos(new Set(newAutos));
     }, [autos, filter]);
 
     useEffect(() => {
