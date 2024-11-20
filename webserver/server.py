@@ -54,14 +54,26 @@ def createAutosMessage(autos):
     return json.dumps({"autoConfigs": autos})
 
 def createNtMessage(topic, value, valueType):
-    return json.dumps({"networkTableUpdate": {
-                "key": topic,
-                "value": value,
-                "valueType": valueType
-                # type,
-                # id,
-                # flags
-            }})
+    try: 
+        return json.dumps({"networkTableUpdate": {
+                    "key": topic,
+                    "value": value,
+                    "valueType": valueType
+                    # type,
+                    # id,
+                    # flags
+                }})
+    except:
+        print("message parsing failed")
+        traceback.print_exc()
+        return json.dumps({"networkTableUpdate": {
+                    "key": topic,
+                    "value": 'ERROR',
+                    "valueType": valueType
+                    # type,
+                    # id,
+                    # flags
+                }})
 
 CONNECTIONS = set()
 
